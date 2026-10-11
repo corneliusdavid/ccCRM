@@ -197,6 +197,29 @@ Notes:
 - The ini values override anything stored in the data module's connection at design time, so the design-time connection can stay as a convenience for the IDE.
 - Don't commit or email the ini file. If the token is ever exposed, revoke it in the Wave developer portal and make a new one.
 
+## RAD Server package (`src/server/ccCRMServer.dpk`)
+
+Compiles (Win32 and Win64, Delphi 12) but has **not been run against RAD Server or a database yet**. Contains `ccCRM.Types/Config/WaveClient/Data` from `src/shared` plus `ccCRM.Server.Json` (dataset to JSON) and `ccCRM.Server.Resources` (the endpoints). Settings come from `ccCRM.ini` beside the built `.bpl`; the server forces pooled connections (named FireDAC definition `ccCRMPool`, 25 connections max). One resource instance (and one `TdmccCRM`) is created per request.
+
+| Resource | Methods | Notes |
+|---|---|---|
+| `customers` | `GET ?q=&type_id=&status_id=`; `GET /{wave_id}`; `PUT /{wave_id}` | List searches name, contact, email, phones, AD group, city **and additional contacts**. Detail includes `contacts` and `log`. PUT updates only `type_id`, `status_id`, `ad_group`, `user_count`, `notes`: missing keys keep their value, JSON `null` clears. Returns the updated customer. |
+| `contacts` | `POST`; `PUT /{id}`; `DELETE /{id}` | POST body needs `wave_id`; PUT replaces `name`, `email`, `phone`, `job_title`. Returns `{"rows": n}`; 404 if nothing matched. |
+| `customerlog` | `POST`; `PUT /{id}`; `DELETE /{id}` | **Manual entries only** (automatic ones are protected by the SQL; they answer 404). POST needs `wave_id` and `summary`; `event_date` (`yyyy-mm-dd`) defaults to today, so back-dating is just a different date. |
+| `lookups` | `GET` | `{types:[...], statuses:[...]}` for pickers and the email filter. |
+| `emails` | `GET ?type=ABS Cloud&status=Active` | Names from `lookups`, both optional. Returns `{count, bcc, emails}`; `bcc` is `a@x; b@y` ready to paste. |
+| `sync` | `POST` | Fetches from Wave and syncs now; returns `{fetched, added, updated, marked_missing}`. |
+
+JSON keys are the lower-case column names (`wave_id`, `user_count`, `type_name`, ...). Dates are ISO 8601.
+
+Things to know before deploying:
+
+- **Security is configured in RAD Server, not in this code.** Use the RAD Server Console to restrict these resources (for example to your own user/group) and keep the application id/secret private. Until then treat the endpoints as unprotected.
+- **Bitness must match the EMS server** (Win32 vs Win64), and so must `fbclient.dll` (`VendorLib` in the ini if needed).
+- Register the built `.bpl` in the EMS server's `emsserver.ini` (`[Server.Packages]`) and put `ccCRM.ini` next to it (outside any web-served folder).
+- The `{wave_id}` path segment is the Wave id as is. These ids are base64 text without `/` or `+`, so they are URL-safe; an `=` suffix, if any, is fine.
+- Untested paths: pooling (`EnsurePoolDef`), `PUT customers` (copies current values through `Variant`), and every resource against real data.
+
 ## Open items
 
 - **Default status/type for new Wave customers**: currently NULL (unclassified).
@@ -217,7 +240,7 @@ Notes:
 
 - Use inline variables (`var X := ...`, `for var C in ...`) wherever possible.
 - Put SQL in design-time components (TFDQuery etc. on the data module) instead of string constants, to keep code small.
-- `src/server/`: the RAD Server package (resources returning JSON). Empty so far.
+- `src/server/`: the RAD Server package `ccCRMServer.dpk` (`ccCRM.Server.Json.pas`, `ccCRM.Server.Resources.pas`). See the RAD Server section above.
 - `src/mobile/`: the FMX mobile app. Empty so far.
 - `wave-customers.graphql`: GraphQL queries for listing businesses and customers (not yet run).
 - `README.md`: this file.

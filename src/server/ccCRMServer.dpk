@@ -1,0 +1,50 @@
+package ccCRMServer;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'ccCRM RAD Server resources'}
+{$LIBSUFFIX AUTO}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  dbrtl,
+  FireDAC,
+  FireDACCommonDriver,
+  FireDACCommon,
+  FireDACIBDriver,
+  emsserverapi;
+
+contains
+  ccCRM.Types in '..\shared\ccCRM.Types.pas',
+  ccCRM.Config in '..\shared\ccCRM.Config.pas',
+  ccCRM.WaveClient in '..\shared\ccCRM.WaveClient.pas',
+  ccCRM.Data in '..\shared\ccCRM.Data.pas' {dmccCRM: TDataModule},
+  ccCRM.Server.Json in 'ccCRM.Server.Json.pas',
+  ccCRM.Server.Resources in 'ccCRM.Server.Resources.pas';
+
+end.

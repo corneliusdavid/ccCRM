@@ -21,16 +21,32 @@ uses
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.Stan.Param,
   FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, ccCRM.Types, FireDAC.ConsoleUI.Wait, FireDAC.Phys.IBBase;
+  FireDAC.Comp.Client, ccCRM.Types, FireDAC.Phys.IBBase;
 
 type
   TdmccCRM = class(TDataModule)
     Conn: TFDConnection;
     FBDriver: TFDPhysFBDriverLink;
+    { sync }
     qWaveIds: TFDQuery;
     qCount: TFDQuery;
     cmdUpsert: TFDQuery;
     cmdMarkMissing: TFDQuery;
+    { REST API }
+    qTypes: TFDQuery;
+    qStatuses: TFDQuery;
+    qCustomers: TFDQuery;
+    qCustomer: TFDQuery;
+    qContacts: TFDQuery;
+    qLog: TFDQuery;
+    qEmails: TFDQuery;
+    cmdUpdateCustomer: TFDQuery;
+    cmdAddContact: TFDQuery;
+    cmdUpdateContact: TFDQuery;
+    cmdDeleteContact: TFDQuery;
+    cmdAddLog: TFDQuery;
+    cmdUpdateLog: TFDQuery;
+    cmdDeleteLog: TFDQuery;
   private
     FOnLog: TccCRMLogEvent;
     procedure DoLog(const AMessage: string);
@@ -48,6 +64,12 @@ implementation
 
 {$R *.dfm}
 
+const
+  PoolDefName = 'ccCRMPool';
+
+var
+  PoolLock: TObject;
+
 { Empty strings from Wave are stored as NULL. }
 procedure SetText(AParam: TFDParam; const AValue: string);
 begin
@@ -63,20 +85,61 @@ begin
     FOnLog(AMessage);
 end;
 
+{ Registers (once per process) a named, pooled FireDAC connection definition.
+  A pooled TFDConnection may carry nothing but the definition name, so the design-time
+  Params are cleared in Connect when AConfig.Pooled is set. }
+procedure EnsurePoolDef(const AConfig: TccCRMDbConfig);
+begin
+  TMonitor.Enter(PoolLock);
+  try
+    if FDManager.ConnectionDefs.FindConnectionDef(PoolDefName) = nil then
+    begin
+      var Def := FDManager.ConnectionDefs.AddConnectionDef;
+      Def.Name := PoolDefName;
+      Def.Params.DriverID := 'FB';
+      Def.Params.Database := AConfig.Database;
+      Def.Params.UserName := AConfig.UserName;
+      Def.Params.Password := AConfig.Password;
+      Def.Params.Values['CharacterSet'] := 'UTF8';
+      if AConfig.Server <> '' then
+      begin
+        Def.Params.Values['Server'] := AConfig.Server;
+        Def.Params.Values['Protocol'] := 'TCPIP';
+        if AConfig.Port > 0 then
+          Def.Params.Values['Port'] := AConfig.Port.ToString;
+      end;
+      Def.Params.Pooled := True;
+      Def.Params.PoolMaximumItems := 25;
+      Def.Apply;
+    end;
+  finally
+    TMonitor.Exit(PoolLock);
+  end;
+end;
+
 procedure TdmccCRM.Connect(const AConfig: TccCRMDbConfig);
 begin
   Conn.Connected := False;
   if AConfig.VendorLib <> '' then
     FBDriver.VendorLib := AConfig.VendorLib;
-  Conn.Params.Values['Database'] := AConfig.Database;
-  Conn.Params.Values['User_Name'] := AConfig.UserName;
-  Conn.Params.Values['Password'] := AConfig.Password;
-  if AConfig.Server <> '' then
+  if AConfig.Pooled then
   begin
-    Conn.Params.Values['Server'] := AConfig.Server;
-    Conn.Params.Values['Protocol'] := 'TCPIP';
-    if AConfig.Port > 0 then
-      Conn.Params.Values['Port'] := AConfig.Port.ToString;
+    EnsurePoolDef(AConfig);
+    Conn.Params.Clear;
+    Conn.ConnectionDefName := PoolDefName;
+  end
+  else
+  begin
+    Conn.Params.Values['Database'] := AConfig.Database;
+    Conn.Params.Values['User_Name'] := AConfig.UserName;
+    Conn.Params.Values['Password'] := AConfig.Password;
+    if AConfig.Server <> '' then
+    begin
+      Conn.Params.Values['Server'] := AConfig.Server;
+      Conn.Params.Values['Protocol'] := 'TCPIP';
+      if AConfig.Port > 0 then
+        Conn.Params.Values['Port'] := AConfig.Port.ToString;
+    end;
   end;
   Conn.Connected := True;
 end;
@@ -156,5 +219,11 @@ begin
   DoLog(Format('Sync done: %d fetched, %d added, %d updated, %d marked missing.',
     [Result.Fetched, Result.Added, Result.Updated, Result.MarkedMissing]));
 end;
+
+initialization
+  PoolLock := TObject.Create;
+
+finalization
+  PoolLock.Free;
 
 end.

@@ -11,3 +11,8 @@ Win64/
 *.res
 ccCRM.ini
 *.dsv
+*.bpl
+*.dcp
+*.bpi
+*.lib
+*.map

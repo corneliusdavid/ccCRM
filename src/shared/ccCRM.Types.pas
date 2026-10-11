@@ -47,6 +47,7 @@ type
     UserName: string;
     Password: string;
     VendorLib: string;       // optional path to fbclient.dll (match Delphi's bitness)
+    Pooled: Boolean;         // True for RAD Server: connections come from a FireDAC pool
   end;
 
   TccCRMLogEvent = reference to procedure(const AMessage: string);
