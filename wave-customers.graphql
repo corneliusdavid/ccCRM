@@ -1,0 +1,36 @@
+# Wave GraphQL queries for ccCRM.
+# Endpoint: https://gql.waveapps.com/graphql/public
+# Header:   Authorization: Bearer <FULL ACCESS TOKEN>
+query {
+  business(id: "QnVzaW5lc3M6MTc4NTI1ZTEtNjU3ZC00MDczLThmOTUtNWM2MDE4NzFhY2Y1") {
+    id
+    customers(page: 1, pageSize: 20, sort: [NAME_ASC]) {
+      pageInfo {
+        currentPage
+        totalPages
+        totalCount
+      }
+      edges {
+        node {
+          id
+          name
+          firstName
+          lastName
+          email
+          phone
+          mobile
+          website
+          address {
+            addressLine1
+            addressLine2
+            city
+            province {
+              code
+              name
+            }
+          postalCode
+        }
+      }
+    }
+  }
+}

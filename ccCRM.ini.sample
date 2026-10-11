@@ -1,0 +1,18 @@
+; Copy to ccCRM.ini (same folder as the exe (sync tool) or the RAD Server package; shared by both) and fill in.
+; ccCRM.ini is git-ignored: it holds the Wave token and database password.
+
+[Wave]
+; Full Access token from the Wave developer portal
+Token=
+; Run "ccCRMSync.exe --businesses" to list ids
+BusinessId=
+
+[Database]
+; Leave Server empty for a local/embedded file path; otherwise host name
+Server=localhost
+Port=0
+Database=E:\Data\ccCRM.fdb
+User=SYSDBA
+Password=
+; Optional: full path to fbclient.dll matching the exe's bitness (Win32/Win64)
+VendorLib=
