@@ -1,0 +1,148 @@
+object EditFrame: TEditFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object CancelButton: TSpeedButton
+      Align = Left
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Cancel'
+      OnClick = CancelButtonClick
+    end
+    object SaveButton: TSpeedButton
+      Align = Right
+      Position.X = 288.000000000000000000
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Save'
+      OnClick = SaveButtonClick
+    end
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      TextSettings.Trimming = Character
+      Size.Width = 216.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Edit'
+      TabOrder = 2
+    end
+  end
+  object Form: TLayout
+    Align = Client
+    Margins.Left = 12.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 12.000000000000000000
+    Margins.Bottom = 8.000000000000000000
+    Size.Width = 336.000000000000000000
+    Size.Height = 540.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object TypeLabel: TLabel
+      Align = Top
+      Position.Y = 0.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Type'
+      TabOrder = 0
+    end
+    object TypeCombo: TComboBox
+      Align = Top
+      Position.Y = 20.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+    end
+    object StatusLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 78.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Status'
+      TabOrder = 2
+    end
+    object StatusCombo: TComboBox
+      Align = Top
+      Position.Y = 98.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+    end
+    object AdLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 156.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'AD group'
+      TabOrder = 4
+    end
+    object AdEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 5
+      Position.Y = 176.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object UsersLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 220.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Users'
+      TabOrder = 6
+    end
+    object UsersSpin: TSpinBox
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 7
+      Cursor = crIBeam
+      Max = 10000.000000000000000000
+      ValueType = Integer
+      Position.Y = 240.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object NotesLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 298.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Notes'
+      TabOrder = 8
+    end
+    object NotesMemo: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      Align = Client
+      Size.Width = 336.000000000000000000
+      Size.Height = 264.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 9
+      Viewport.Width = 332.000000000000000000
+      Viewport.Height = 260.000000000000000000
+    end
+  end
+end

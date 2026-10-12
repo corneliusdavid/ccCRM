@@ -1,0 +1,63 @@
+object DetailFrame: TDetailFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object BackButton: TSpeedButton
+      Align = Left
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Back'
+      OnClick = BackButtonClick
+    end
+    object LogButton: TSpeedButton
+      Align = Right
+      Position.X = 296.000000000000000000
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = '+ Log'
+      OnClick = LogButtonClick
+    end
+    object EditButton: TSpeedButton
+      Align = Right
+      Position.X = 232.000000000000000000
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Edit'
+      OnClick = EditButtonClick
+    end
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      TextSettings.Trimming = Character
+      Size.Width = 168.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Customer'
+      TabOrder = 3
+    end
+  end
+  object List: TListBox
+    Align = Client
+    Size.Width = 360.000000000000000000
+    Size.Height = 556.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    DisableFocusEffect = True
+    DefaultItemStyles.ItemStyle = ''
+    DefaultItemStyles.GroupHeaderStyle = ''
+    DefaultItemStyles.GroupFooterStyle = ''
+    OnItemClick = ListItemClick
+    Viewport.Width = 360.000000000000000000
+    Viewport.Height = 556.000000000000000000
+  end
+end

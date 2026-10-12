@@ -1,0 +1,68 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  Caption = 'ccCRM'
+  ClientHeight = 640
+  ClientWidth = 360
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
+  DesignerMasterStyle = 0
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      Margins.Left = 72.000000000000000000
+      Size.Width = 160.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Text = 'Customers'
+      TabOrder = 0
+    end
+    object SettingsButton: TSpeedButton
+      Align = Right
+      Position.X = 296.000000000000000000
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Setup'
+      TextSettings.Trimming = None
+      OnClick = SettingsButtonClick
+    end
+    object EmailsButton: TSpeedButton
+      Align = Right
+      Position.X = 232.000000000000000000
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Email'
+      TextSettings.Trimming = None
+      OnClick = EmailsButtonClick
+    end
+  end
+  object Host: TLayout
+    Align = Client
+    Size.Width = 360.000000000000000000
+    Size.Height = 596.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+  end
+  object FrameStand1: TFrameStand
+    AnimationShow = 'OnShow*'
+    AnimationHide = 'OnHide*'
+    CommonActionPrefix = 'ca_'
+    DefaultHideAndCloseDeferTimeMS = 100
+    DefaultStyleName = 'framestand'
+    DefaultStandName = 'framestand'
+    Left = 296
+    Top = 560
+  end
+end

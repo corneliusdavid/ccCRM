@@ -16,3 +16,19 @@ User=SYSDBA
 Password=
 ; Optional: full path to fbclient.dll matching the exe's bitness (Win32/Win64)
 VendorLib=
+
+[Server]
+; Read by the mobile app only (the Windows build reads this same file beside its exe).
+; NEVER copy this whole file to a phone: [Wave] and [Database] hold the Wave token and the
+; database password. On a phone the app keeps its own small file with just this section.
+BaseUrl=
+;BaseUrl is the address of your RAD Server. Every resource path is appended to it. 
+;For example https://yourhost/radserver becomes https://yourhost/radserver/lookups and .../customers. 
+;In IIS, use the host and the virtual directory the RAD Server site is under.
+AppId=
+;AppID is the RAD Server Application ID. The app sends it with every request in the X-Embarcadero-Application-Id header. 
+;RAD Server uses it to recognise which client application is calling, and it rejects calls without a valid one. 
+; You can find the value in RAD Server�s emsserver.ini
+AppSecret=
+;AppSecret is optional. When set, the app sends it in the X-Embarcadero-App-Secret header. 
+;If your RAD Server is configured to require a secret, it must match.

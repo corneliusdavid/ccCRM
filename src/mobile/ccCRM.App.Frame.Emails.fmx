@@ -1,0 +1,113 @@
+object EmailsFrame: TEmailsFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object BackButton: TSpeedButton
+      Align = Left
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Back'
+      OnClick = BackButtonClick
+    end
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Size.Width = 296.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Email list'
+      TabOrder = 1
+    end
+  end
+  object Form: TLayout
+    Align = Client
+    Margins.Left = 12.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 12.000000000000000000
+    Margins.Bottom = 8.000000000000000000
+    Size.Width = 336.000000000000000000
+    Size.Height = 540.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object TypeCombo: TComboBox
+      Align = Top
+      Size.Width = 336.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      OnChange = FilterChange
+    end
+    object StatusCombo: TComboBox
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 58.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      OnChange = FilterChange
+    end
+    object CountLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 116.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 24.000000000000000000
+      Size.PlatformDefault = False
+      Text = ' '
+      TabOrder = 2
+    end
+    object ButtonLayout: TLayout
+      Align = Bottom
+      Position.Y = 496.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object CopyButton: TButton
+        Align = Left
+        Margins.Right = 4.000000000000000000
+        Size.Width = 164.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Text = 'Copy BCC list'
+        TextSettings.Trimming = None
+        OnClick = CopyButtonClick
+      end
+      object MailButton: TButton
+        Align = Client
+        Margins.Left = 4.000000000000000000
+        Size.Width = 164.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Text = 'Open in email'
+        TextSettings.Trimming = None
+        OnClick = MailButtonClick
+      end
+    end
+    object BccMemo: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      ReadOnly = True
+      Align = Client
+      Margins.Top = 8.000000000000000000
+      Margins.Bottom = 8.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 380.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 4
+      Viewport.Width = 332.000000000000000000
+      Viewport.Height = 376.000000000000000000
+    end
+  end
+end

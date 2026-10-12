@@ -1,0 +1,83 @@
+object CustomersFrame: TCustomersFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object SearchEdit: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    Align = Top
+    TabOrder = 0
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Margins.Left = 8.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 8.000000000000000000
+    Margins.Bottom = 4.000000000000000000
+    Size.Width = 344.000000000000000000
+    Size.Height = 36.000000000000000000
+    Size.PlatformDefault = False
+    TextPrompt = 'Search name, email, phone, city...'
+    KillFocusByReturn = True
+    OnChangeTracking = SearchEditChangeTracking
+  end
+  object FilterLayout: TLayout
+    Align = Top
+    Margins.Left = 8.000000000000000000
+    Margins.Right = 8.000000000000000000
+    Position.X = 8.000000000000000000
+    Position.Y = 48.000000000000000000
+    Size.Width = 344.000000000000000000
+    Size.Height = 36.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object TypeCombo: TComboBox
+      Align = Left
+      Margins.Right = 4.000000000000000000
+      Size.Width = 168.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      OnChange = FilterChange
+    end
+    object StatusCombo: TComboBox
+      Align = Client
+      Margins.Left = 4.000000000000000000
+      Size.Width = 168.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      OnChange = FilterChange
+    end
+  end
+  object CountLabel: TLabel
+    Align = Top
+    Margins.Left = 12.000000000000000000
+    Margins.Top = 4.000000000000000000
+    Margins.Right = 12.000000000000000000
+    Position.X = 12.000000000000000000
+    Position.Y = 88.000000000000000000
+    Size.Width = 336.000000000000000000
+    Size.Height = 20.000000000000000000
+    Size.PlatformDefault = False
+    Text = ' '
+    TabOrder = 2
+  end
+  object List: TListBox
+    Align = Client
+    Size.Width = 360.000000000000000000
+    Size.Height = 492.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    DisableFocusEffect = True
+    DefaultItemStyles.ItemStyle = ''
+    DefaultItemStyles.GroupHeaderStyle = ''
+    DefaultItemStyles.GroupFooterStyle = ''
+    Viewport.Width = 356.000000000000000000
+    Viewport.Height = 488.000000000000000000
+  end
+  object SearchTimer: TTimer
+    Enabled = False
+    OnTimer = SearchTimerTimer
+    Left = 296
+    Top = 400
+  end
+end

@@ -1,0 +1,143 @@
+object SettingsFrame: TSettingsFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object BackButton: TSpeedButton
+      Align = Left
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Back'
+      OnClick = BackButtonClick
+    end
+    object SaveButton: TSpeedButton
+      Align = Right
+      Position.X = 296.000000000000000000
+      Size.Width = 64.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Save'
+      OnClick = SaveButtonClick
+    end
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Size.Width = 232.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Settings'
+      TabOrder = 2
+    end
+  end
+  object Form: TLayout
+    Align = Client
+    Margins.Left = 12.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 12.000000000000000000
+    Margins.Bottom = 8.000000000000000000
+    Size.Width = 336.000000000000000000
+    Size.Height = 540.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object UrlLabel: TLabel
+      Align = Top
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Server address (RAD Server base URL)'
+      TabOrder = 0
+    end
+    object UrlEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 1
+      TextPrompt = 'https://server/radserver'
+      KeyboardType = URL
+      Position.Y = 20.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object IdLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 64.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Application id (leave blank if not required)'
+      TabOrder = 2
+    end
+    object IdEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 3
+      Position.Y = 84.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object SecretLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 128.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Application secret (optional)'
+      TabOrder = 4
+    end
+    object SecretEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 5
+      Password = True
+      Position.Y = 148.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object TestButton: TButton
+      Align = Top
+      Margins.Top = 16.000000000000000000
+      Position.Y = 200.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 6
+      Text = 'Test connection'
+      TextSettings.Trimming = None
+      OnClick = TestButtonClick
+    end
+    object SyncButton: TButton
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 252.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 7
+      Text = 'Sync customers from Wave now'
+      TextSettings.Trimming = None
+      OnClick = SyncButtonClick
+    end
+    object ResultLabel: TLabel
+      Align = Client
+      Margins.Top = 12.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 200.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.WordWrap = True
+      TextSettings.VertAlign = Leading
+      Text = ' '
+      TabOrder = 8
+    end
+  end
+end

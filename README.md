@@ -220,6 +220,27 @@ Things to know before deploying:
 - The `{wave_id}` path segment is the Wave id as is. These ids are base64 text without `/` or `+`, so they are URL-safe; an `=` suffix, if any, is fine.
 - Untested paths: pooling (`EnsurePoolDef`), `PUT customers` (copies current values through `Variant`), and every resource against real data.
 
+## Mobile app (`src/mobile/ccCRMApp.dpr`)
+
+FMX app (Delphi 12) built on **TFrameStand** (`E:\Delphi\lib\TFrameStand`, add its `source` folder to the library path for each platform). The main form holds a `TFrameStand`; the customer list is the permanent base page, and every other screen is a frame stood on top of it and closed with Back (toolbar button or the Android back key). The app only talks to the RAD Server package; it never touches Wave or the database directly.
+
+| Frame | Does |
+|---|---|
+| `Customers` | Search (name, email, phones, city, AD group, extra contacts), type and status filters. Searches wait for a pause in typing. |
+| `Detail` | One scrolling list: contact info (tap an email or phone to open the mail or dial app), account (type, status, users, AD group), notes, extra people, the dated log. Toolbar: Edit, + Log. |
+| `Edit` | Your own columns only: type, status, AD group, user count, notes. Name, email, phone and address stay in Wave. |
+| `Log` | Adds a manual log entry; the date defaults to today and can be set earlier to record history. |
+| `Emails` | Email list for a type/status (defaults to Active ABS Cloud). Copy the BCC list or hand it to the email app. |
+| `Settings` | Server base URL, RAD Server application id and secret (stored in the app's private `ccCRM.ini`), Test connection, and "Sync customers from Wave now". |
+
+Code layout: `ccCRM.App.Types` (records + JSON readers), `ccCRM.App.Api` (blocking REST client, settings, and `TAsync.Run<T>` that runs a call on a pool thread and answers on the UI thread unless the frame has been closed), `ccCRM.App.Platform` (open `tel:`/`mailto:`, clipboard), one `ccCRM.App.Frame.*` unit per frame, `ccCRM.App.Main`.
+
+Status: compiles for Win32 and every frame streams from its `.fmx` (checked headless). **Not yet run against the server, and the Android/iOS branches of `ccCRM.App.Platform` could not be compiled here (no Android SDK libraries installed on this machine).** To do on your side:
+
+- Open `ccCRMApp.dpr` in RAD Studio, add the Android (and/or iOS) target, and enable **Internet** under Project Options > Uses Permissions.
+- Use an **https** server address on Android: cleartext http is blocked by default on current Android versions.
+- Not built yet: adding/editing/deleting extra contacts, editing or deleting a manual log entry, user login (the app currently authenticates with the RAD Server application id/secret only), and the lock/biometric screen.
+
 ## Open items
 
 - **Default status/type for new Wave customers**: currently NULL (unclassified).
@@ -241,6 +262,6 @@ Things to know before deploying:
 - Use inline variables (`var X := ...`, `for var C in ...`) wherever possible.
 - Put SQL in design-time components (TFDQuery etc. on the data module) instead of string constants, to keep code small.
 - `src/server/`: the RAD Server package `ccCRMServer.dpk` (`ccCRM.Server.Json.pas`, `ccCRM.Server.Resources.pas`). See the RAD Server section above.
-- `src/mobile/`: the FMX mobile app. Empty so far.
+- `src/mobile/`: the FMX mobile app (`ccCRMApp.dpr`, `ccCRM.App.*`). See the Mobile app section above.
 - `wave-customers.graphql`: GraphQL queries for listing businesses and customers (not yet run).
 - `README.md`: this file.

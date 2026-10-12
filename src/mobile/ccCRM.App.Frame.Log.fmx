@@ -1,0 +1,88 @@
+object LogFrame: TLogFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object CancelButton: TSpeedButton
+      Align = Left
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Cancel'
+      OnClick = CancelButtonClick
+    end
+    object SaveButton: TSpeedButton
+      Align = Right
+      Position.X = 288.000000000000000000
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Save'
+      OnClick = SaveButtonClick
+    end
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Size.Width = 216.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Add log entry'
+      TabOrder = 2
+    end
+  end
+  object Form: TLayout
+    Align = Client
+    Margins.Left = 12.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 12.000000000000000000
+    Margins.Bottom = 8.000000000000000000
+    Size.Width = 336.000000000000000000
+    Size.Height = 540.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object DateLabel: TLabel
+      Align = Top
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Date it happened (back-date old events)'
+      TabOrder = 0
+    end
+    object DateEdit: TDateEdit
+      Date = 46000.000000000000000000
+      Align = Top
+      Position.Y = 20.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+    end
+    object SummaryLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 64.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'What happened'
+      TabOrder = 2
+    end
+    object SummaryMemo: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      Align = Client
+      Size.Width = 336.000000000000000000
+      Size.Height = 456.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      Viewport.Width = 332.000000000000000000
+      Viewport.Height = 452.000000000000000000
+    end
+  end
+end
