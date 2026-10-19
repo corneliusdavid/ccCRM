@@ -13,7 +13,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.StrUtils, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation,
-  FMX.ListBox, FMX.Layouts, FMX.TextLayout, FMX.DialogService, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
+  FMX.ListBox, FMX.Layouts, FMX.Objects, FMX.TextLayout, FMX.DialogService, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
 
 type
   TDetailFrame = class(TFrame)
@@ -40,7 +40,7 @@ type
     function AddRow(const AText, ADetail: string; AWrap: Boolean = False): TListBoxItem;
     procedure AddLink(AItem: TListBoxItem; AIcon: TAppIcon; const AUrl: string);
     procedure LinkButtonClick(Sender: TObject);
-    procedure LinkRowApplyStyleLookup(Sender: TObject);
+    procedure RowApplyStyleLookup(Sender: TObject);
     procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
     procedure DeleteCustomer;
@@ -123,11 +123,11 @@ begin
   Item.Text := AText;
   Item.ItemData.Detail := ADetail;
   Item.Height := 52;
+  Item.OnApplyStyleLookup := RowApplyStyleLookup;
   if AWrap then
   begin
-    Item.WordWrap := True;
     Item.Tag := WrapTag;
-    SizeWrappedRow(Item);
+    SizeWrappedRow(Item);  // applies the style, so RowApplyStyleLookup turns wrapping on first
   end;
 end;
 
@@ -154,8 +154,7 @@ begin
   end;
   SetIcon(Button, AIcon);
 
-  AItem.OnApplyStyleLookup := LinkRowApplyStyleLookup;
-  LinkRowApplyStyleLookup(AItem);
+  RowApplyStyleLookup(AItem);  // make room for the new button now if the style is already applied
 end;
 
 procedure TDetailFrame.LinkButtonClick(Sender: TObject);
@@ -163,11 +162,27 @@ begin
   OpenUrl((Sender as TSpeedButton).TagString);
 end;
 
-{ Keeps the row's text clear of its link buttons, so a long email address isn't drawn under
-  them. Runs again whenever the row re-applies its style. }
-procedure TDetailFrame.LinkRowApplyStyleLookup(Sender: TObject);
+{ Adjusts the row's copy of its style, so other rows are unaffected. Runs whenever the row
+  (re)applies its style.
+  - Wrapped rows: the style's "text" object has WordWrap off and Character trimming of its own,
+    and those win over Item.WordWrap while StyledSettings includes Other, so they are switched
+    on the text object itself.
+  - Rows with link buttons: the text is kept clear of them, so a long email address isn't drawn
+    under them. }
+procedure TDetailFrame.RowApplyStyleLookup(Sender: TObject);
 begin
   var Item := Sender as TListBoxItem;
+  if Item.Tag = WrapTag then
+  begin
+    var Text := Item.FindStyleResource('text');
+    if Text is TText then
+    begin
+      TText(Text).WordWrap := True;
+      TText(Text).Trimming := TTextTrimming.None;
+      TText(Text).VertTextAlign := TTextAlign.Leading;
+    end;
+  end;
+
   var Room: Single := 0;
   for var I := 0 to Item.ChildrenCount - 1 do
     if Item.Children[I] is TSpeedButton then
