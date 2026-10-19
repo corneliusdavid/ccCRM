@@ -30,6 +30,7 @@ type
     FCustomers: TCustomersFrame;
     FPages: TList<TFrame>;   // open pages above the customer list; topmost last
     function TopPage: TFrame;
+    procedure UpdateBar;
     procedure ClosePage(AFrame: TFrame);
     function Open<T: TFrame>(const AConfig: TProc<T>): T;
     procedure OpenDetail(const AWaveId: string);
@@ -58,6 +59,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FPages := TList<TFrame>.Create;
   SetIcon(SettingsButton, TAppIcon.Settings);
+  UpdateBar;
   FCustomers := FrameStand1.NewAndShow<TCustomersFrame>(Host, '',
     procedure(F: TCustomersFrame)
     begin
@@ -89,6 +91,26 @@ begin
   if Info <> nil then
     Info.HideAndClose;
   TopPage.Visible := True;
+  UpdateBar;
+end;
+
+{ Emails and Settings are only offered on the customer list, not on pages stood on top of it.
+  Right-aligned controls are ordered by their current position, which goes stale while hidden,
+  so the gear is pushed back to the far right each time. The title's left margin matches the
+  buttons on the right, so it stays centred in the bar. }
+procedure TMainForm.UpdateBar;
+begin
+  var Home := FPages.Count = 0;
+  EmailsButton.Visible := Home;
+  SettingsButton.Visible := Home;
+  if Home then
+  begin
+    EmailsButton.Position.X := 0;
+    SettingsButton.Position.X := Bar.Width;
+    TitleLabel.Margins.Left := EmailsButton.Width + SettingsButton.Width;
+  end
+  else
+    TitleLabel.Margins.Left := 0;
 end;
 
 function TMainForm.Open<T>(const AConfig: TProc<T>): T;
@@ -102,6 +124,7 @@ begin
         AConfig(F);
     end).Frame;
   FPages.Add(Result);
+  UpdateBar;
 end;
 
 procedure TMainForm.OpenDetail(const AWaveId: string);

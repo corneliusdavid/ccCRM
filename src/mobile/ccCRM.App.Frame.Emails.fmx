@@ -18,11 +18,11 @@ object EmailsFrame: TEmailsFrame
     object TitleLabel: TLabel
       Align = Client
       StyledSettings = [Family, Size, FontColor]
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-      TextSettings.HorzAlign = Center
       Size.Width = 296.000000000000000000
       Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
       Text = 'Email list'
       TabOrder = 1
     end
@@ -80,7 +80,6 @@ object EmailsFrame: TEmailsFrame
         Size.PlatformDefault = False
         TabOrder = 0
         Text = 'Copy BCC list'
-        TextSettings.Trimming = None
         OnClick = CopyButtonClick
       end
       object MailButton: TButton
@@ -91,7 +90,6 @@ object EmailsFrame: TEmailsFrame
         Size.PlatformDefault = False
         TabOrder = 1
         Text = 'Open in email'
-        TextSettings.Trimming = None
         OnClick = MailButtonClick
       end
     end
@@ -99,15 +97,16 @@ object EmailsFrame: TEmailsFrame
       Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
       DataDetectorTypes = []
       ReadOnly = True
+      TextSettings.WordWrap = True
       Align = Client
       Margins.Top = 8.000000000000000000
       Margins.Bottom = 8.000000000000000000
       Size.Width = 336.000000000000000000
-      Size.Height = 380.000000000000000000
+      Size.Height = 340.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 4
-      Viewport.Width = 332.000000000000000000
-      Viewport.Height = 376.000000000000000000
+      Viewport.Width = 336.000000000000000000
+      Viewport.Height = 340.000000000000000000
     end
   end
 end

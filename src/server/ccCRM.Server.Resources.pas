@@ -6,6 +6,7 @@ unit ccCRM.Server.Resources;
 
   Resources
     customers      GET (q, type_id, status_id) | GET /item | PUT /item | DELETE /item
+                                                         (GET: type_id/status_id 0 = not set)
                                                          (DELETE: only if no longer in Wave)
     contacts       POST | PUT /item | DELETE /item
     customerlog    POST | PUT /item | DELETE /item       (manual entries only)

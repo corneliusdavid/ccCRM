@@ -15,6 +15,12 @@ uses
 type
   ECrmApiError = class(Exception);
 
+const
+  AllIds = -1;          // list filter: any type / status
+  UnclassifiedId = 0;   // list filter: type / status not set
+
+type
+
   TAppSettings = record
     BaseUrl: string;       // e.g. https://server/radserver
     AppId: string;         // RAD Server application id
@@ -60,6 +66,7 @@ type
     property Settings: TAppSettings read FSettings;
 
     function Lookups(ARefresh: Boolean = False): TLookups;
+    { ATypeId / AStatusId: AllIds for no filter, UnclassifiedId for customers without one. }
     function Customers(const AQuery: string; ATypeId, AStatusId: Integer): TArray<TCustomerRow>;
     function Customer(const AWaveId: string): TCustomerDetail;
     { Updates only your own columns; returns the refreshed customer. TypeId/StatusId 0 clears. }
@@ -287,9 +294,9 @@ begin
   var Qs := '';
   if Trim(AQuery) <> '' then
     Qs := Qs + '&q=' + TNetEncoding.URL.EncodeQuery(Trim(AQuery));
-  if ATypeId > 0 then
+  if ATypeId <> AllIds then
     Qs := Qs + '&type_id=' + ATypeId.ToString;
-  if AStatusId > 0 then
+  if AStatusId <> AllIds then
     Qs := Qs + '&status_id=' + AStatusId.ToString;
   if Qs <> '' then
     Qs := '?' + Qs.Substring(1);

@@ -1,6 +1,7 @@
 unit ccCRM.App.Frame.Customers;
 
-{ Home screen: search box, type/status filters and the customer list. }
+{ Home screen: search box, type/status filters and the customer list. The type filter ends
+  with "Unclassified", for customers that still need a type. }
 
 interface
 
@@ -64,10 +65,12 @@ end;
 
 function TCustomersFrame.SelectedId(ACombo: TComboBox; const AItems: TArray<TLookup>): Integer;
 begin
-  Result := 0;
+  Result := AllIds;
   var Index := ACombo.ItemIndex - 1;  // item 0 is "All"
   if (Index >= 0) and (Index < Length(AItems)) then
-    Result := AItems[Index].Id;
+    Result := AItems[Index].Id
+  else if Index = Length(AItems) then
+    Result := UnclassifiedId;  // the extra item after the lookups, if the combo has one
 end;
 
 procedure TCustomersFrame.LoadLookups;
@@ -89,6 +92,7 @@ begin
         FStatuses := ALookups.Statuses;
         for var T in FTypes do
           TypeCombo.Items.Add(T.Name);
+        TypeCombo.Items.Add('Unclassified');
         for var S in FStatuses do
           StatusCombo.Items.Add(S.Name);
         TypeCombo.ItemIndex := 0;

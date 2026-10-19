@@ -36,12 +36,11 @@ object DetailFrame: TDetailFrame
     object TitleLabel: TLabel
       Align = Client
       StyledSettings = [Family, Size, FontColor]
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-      TextSettings.HorzAlign = Center
-      TextSettings.Trimming = Character
       Size.Width = 168.000000000000000000
       Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
       Text = 'Customer'
       TabOrder = 3
     end
@@ -57,7 +56,7 @@ object DetailFrame: TDetailFrame
     DefaultItemStyles.GroupHeaderStyle = ''
     DefaultItemStyles.GroupFooterStyle = ''
     OnItemClick = ListItemClick
-    Viewport.Width = 360.000000000000000000
-    Viewport.Height = 556.000000000000000000
+    Viewport.Width = 356.000000000000000000
+    Viewport.Height = 552.000000000000000000
   end
 end
