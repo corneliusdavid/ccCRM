@@ -8,18 +8,24 @@ unit ccCRM.App.Icons;
 interface
 
 uses
-  FMX.StdCtrls;
+  FMX.Types, FMX.StdCtrls, FMX.Objects;
 
 type
   TAppIcon = (Back, Edit, Cancel, Save, Settings);
 
+  { Coloured markers shown in list rows (not themed: the colour is part of the meaning). }
+  TBadge = (Star, Frown);
+
 { Replaces the button's caption with AIcon; the old caption is kept as the hint. }
 procedure SetIcon(AButton: TCustomButton; AIcon: TAppIcon);
+
+{ Adds ABadge at the right-hand end of AParent (e.g. a list box item). }
+function AddBadge(AParent: TFmxObject; ABadge: TBadge): TPath;
 
 implementation
 
 uses
-  System.UITypes, FMX.Types, FMX.Graphics, FMX.Objects;
+  System.UITypes, FMX.Graphics;
 
 const
   IconSize = 22;
@@ -54,6 +60,26 @@ const
     '0.47 0 0.59 -0.22 l 1.92 -3.32 c 0.12 -0.22 0.07 -0.47 -0.12 -0.61 l -2.01 -1.58 z M ' +
     '12 15.6 c -1.98 0 -3.6 -1.62 -3.6 -3.6 s 1.62 -3.6 3.6 -3.6 s 3.6 1.62 3.6 3.6 s ' +
     '-1.62 3.6 -3.6 3.6 z'
+  );
+
+  BadgeSize = 22;
+
+  BadgePaths: array[TBadge] of string = (
+    { Star }
+    'M 0 0 M 24 24 M 12 17.27 L 18.18 21 l -1.64 -7.03 L 22 9.24 l -7.19 -0.61 L 12 2 ' +
+    'L 9.19 8.63 L 2 9.24 l 5.46 4.73 L 5.82 21 z',
+    { Frown (sentiment_dissatisfied) }
+    'M 0 0 M 24 24 M 14 9.5 a 1.5 1.5 0 1 0 3 0 a 1.5 1.5 0 1 0 -3 0 z ' +
+    'M 7 9.5 a 1.5 1.5 0 1 0 3 0 a 1.5 1.5 0 1 0 -3 0 z ' +
+    'M 11.99 2 C 6.47 2 2 6.48 2 12 S 6.47 22 11.99 22 C 17.52 22 22 17.52 22 12 ' +
+    'S 17.52 2 11.99 2 z M 12 20 C 7.58 20 4 16.42 4 12 S 7.58 4 12 4 S 20 7.58 20 12 ' +
+    'S 16.42 20 12 20 z M 12 14 c -2.33 0 -4.31 1.46 -5.11 3.5 h 10.22 ' +
+    'c -0.8 -2.04 -2.78 -3.5 -5.11 -3.5 z'
+  );
+
+  BadgeColors: array[TBadge] of TAlphaColor = (
+    $FFF5B800,  // Star: yellow
+    $FF3A3A3A   // Frown: dark grey
   );
 
 type
@@ -94,6 +120,22 @@ begin
   AButton.Width := ButtonWidth;
   AButton.OnApplyStyleLookup := TIconStyler.ButtonApplyStyleLookup;
   TIconStyler.ButtonApplyStyleLookup(AButton);  // in case the style is already applied
+end;
+
+function AddBadge(AParent: TFmxObject; ABadge: TBadge): TPath;
+begin
+  Result := TPath.Create(AParent);
+  Result.Parent := AParent;
+  Result.Align := TAlignLayout.Right;
+  Result.Width := BadgeSize;
+  Result.Margins.Right := 12;
+  Result.Margins.Top := 4;
+  Result.Margins.Bottom := 4;
+  Result.HitTest := False;
+  Result.WrapMode := TPathWrapMode.Fit;
+  Result.Stroke.Kind := TBrushKind.None;
+  Result.Fill.Color := BadgeColors[ABadge];
+  Result.Data.Data := BadgePaths[ABadge];
 end;
 
 end.

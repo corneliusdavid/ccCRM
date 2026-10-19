@@ -36,7 +36,7 @@ type
     FOnAddLog: TProc<string>;
     FOnDeleted: TProc;
     procedure AddHeader(const AText: string);
-    procedure AddRow(const AText, ADetail: string; const AAction: string = ''; AWrap: Boolean = False);
+    function AddRow(const AText, ADetail: string; const AAction: string = ''; AWrap: Boolean = False): TListBoxItem;
     procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
     procedure DeleteCustomer;
@@ -58,6 +58,7 @@ implementation
 
 const
   WrapTag = 1;  // Tag of rows whose height follows their word-wrapped text
+  AdTypeName = 'ABS Cloud';  // the only type with an AD group and user count
 
 constructor TDetailFrame.Create(AOwner: TComponent);
 begin
@@ -110,9 +111,10 @@ begin
 end;
 
 { AAction is "tel:..." or "mailto:..." and is opened when the row is tapped. }
-procedure TDetailFrame.AddRow(const AText, ADetail, AAction: string; AWrap: Boolean);
+function TDetailFrame.AddRow(const AText, ADetail, AAction: string; AWrap: Boolean): TListBoxItem;
 begin
   var Item := TListBoxItem.Create(List);
+  Result := Item;
   Item.Parent := List;
   Item.StyleLookup := 'listboxitembottomdetail';
   Item.Text := AText;
@@ -189,11 +191,27 @@ begin
       AddRow(IfThen(Address <> '', Address, CityLine), IfThen(Address <> '', CityLine, 'Address'));
 
     AddHeader('Account');
-    AddRow(IfThen(R.TypeName <> '', R.TypeName, 'Unclassified'), 'Type');
-    AddRow(IfThen(R.StatusName <> '', R.StatusName, 'Unclassified'), 'Status');
-    AddRow(R.UserCount.ToString, 'Users');
-    if FDetail.AdGroup <> '' then
-      AddRow(FDetail.AdGroup, 'AD group');
+    var Account := IfThen(R.TypeName <> '', R.TypeName, 'Unclassified');
+    if R.StatusName <> '' then
+      Account := Account + ' - ' + R.StatusName;
+    var AccountRow := AddRow(Account, 'Type and status');
+    if SameText(R.StatusName, 'Active') then
+      AddBadge(AccountRow, TBadge.Star)
+    else if SameText(R.StatusName, 'Inactive') then
+      AddBadge(AccountRow, TBadge.Frown);
+
+    if SameText(R.TypeName, AdTypeName) then
+    begin
+      var AdRow := AddRow(IfThen(FDetail.AdGroup <> '', FDetail.AdGroup, 'undefined'), 'AD group');
+      var Users := TLabel.Create(AdRow);
+      Users.Parent := AdRow;
+      Users.Align := TAlignLayout.Right;
+      Users.Width := 90;
+      Users.Margins.Right := 12;
+      Users.HitTest := False;
+      Users.TextSettings.HorzAlign := TTextAlign.Trailing;
+      Users.Text := R.UserCount.ToString + IfThen(R.UserCount = 1, ' user', ' users');
+    end;
     if not R.InWave then
       AddRow('No longer in Wave', 'Wave');
 
