@@ -50,8 +50,15 @@ object DetailFrame: TDetailFrame
     Size.Width = 360.000000000000000000
     Size.Height = 556.000000000000000000
     Size.PlatformDefault = False
+    StyleLookup = 'listboxstyle'
     TabOrder = 1
     DisableFocusEffect = True
+    Items.Strings = (
+      'test item 1'
+      
+        'test item 2 with lots of additional text to test word-wrapping c' +
+        'apability'
+      'test item 3')
     DefaultItemStyles.ItemStyle = ''
     DefaultItemStyles.GroupHeaderStyle = ''
     DefaultItemStyles.GroupFooterStyle = ''

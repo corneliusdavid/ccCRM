@@ -11,7 +11,8 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, FMX.Layouts, FrameStand, ccCRM.App.Types, ccCRM.App.Api,
   ccCRM.App.Frame.Customers, ccCRM.App.Frame.Detail, ccCRM.App.Frame.Edit,
-  ccCRM.App.Frame.Log, ccCRM.App.Frame.Emails, ccCRM.App.Frame.Settings, SubjectStand, ccCRM.App.Icons;
+  ccCRM.App.Frame.Log, ccCRM.App.Frame.Emails, ccCRM.App.Frame.Settings,
+  ccCRM.App.Frame.Contacts, ccCRM.App.Frame.ContactEdit, SubjectStand, ccCRM.App.Icons;
 
 type
   TMainForm = class(TForm)
@@ -36,6 +37,9 @@ type
     procedure OpenDetail(const AWaveId: string);
     procedure OpenEdit(ADetailFrame: TDetailFrame; const ADetail: TCustomerDetail);
     procedure OpenLog(ADetailFrame: TDetailFrame; const AWaveId: string);
+    procedure OpenContacts(ADetailFrame: TDetailFrame; const AWaveId: string);
+    procedure OpenContactEdit(AContactsFrame: TContactsFrame; const AWaveId: string;
+      const AContact: TContactRec);
     procedure OpenSettings;
     procedure OpenEmails;
   public
@@ -154,6 +158,11 @@ begin
           ClosePage(F);
           FCustomers.Reload;
         end;
+      F.OnContacts :=
+        procedure(AId: string)
+        begin
+          OpenContacts(F, AId);
+        end;
       F.Load(AWaveId);
     end);
 end;
@@ -194,6 +203,47 @@ begin
         begin
           ClosePage(F);
           ADetailFrame.Reload;
+        end;
+    end);
+end;
+
+procedure TMainForm.OpenContacts(ADetailFrame: TDetailFrame; const AWaveId: string);
+begin
+  Open<TContactsFrame>(
+    procedure(F: TContactsFrame)
+    begin
+      F.OnBack :=
+        procedure
+        begin
+          ClosePage(F);
+          ADetailFrame.Reload;  // the People section may have changed
+        end;
+      F.OnEditContact :=
+        procedure(AContact: TContactRec)
+        begin
+          OpenContactEdit(F, AWaveId, AContact);
+        end;
+      F.Load(AWaveId);
+    end);
+end;
+
+procedure TMainForm.OpenContactEdit(AContactsFrame: TContactsFrame; const AWaveId: string;
+  const AContact: TContactRec);
+begin
+  Open<TContactEditFrame>(
+    procedure(F: TContactEditFrame)
+    begin
+      F.Start(AWaveId, AContact);
+      F.OnCancel :=
+        procedure
+        begin
+          ClosePage(F);
+        end;
+      F.OnSaved :=
+        procedure
+        begin
+          ClosePage(F);
+          AContactsFrame.Reload;
         end;
     end);
 end;

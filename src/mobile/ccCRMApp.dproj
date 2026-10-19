@@ -313,6 +313,7 @@
         <DCCReference Include="ccCRM.App.Api.pas"/>
         <DCCReference Include="ccCRM.App.Platform.pas"/>
         <DCCReference Include="ccCRM.App.Icons.pas"/>
+        <DCCReference Include="ccCRM.App.Rows.pas"/>
         <DCCReference Include="ccCRM.App.Frame.Customers.pas">
             <Form>CustomersFrame</Form>
             <DesignClass>TFrame</DesignClass>
@@ -335,6 +336,14 @@
         </DCCReference>
         <DCCReference Include="ccCRM.App.Frame.Settings.pas">
             <Form>SettingsFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="ccCRM.App.Frame.Contacts.pas">
+            <Form>ContactsFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="ccCRM.App.Frame.ContactEdit.pas">
+            <Form>ContactEditFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="ccCRM.App.Main.pas">

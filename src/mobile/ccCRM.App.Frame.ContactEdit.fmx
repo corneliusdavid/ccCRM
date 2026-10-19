@@ -1,0 +1,126 @@
+object ContactEditFrame: TContactEditFrame
+  Size.Width = 360.000000000000000000
+  Size.Height = 600.000000000000000000
+  Size.PlatformDefault = False
+  object Bar: TToolBar
+    Size.Width = 360.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object CancelButton: TSpeedButton
+      Align = Left
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Cancel'
+      OnClick = CancelButtonClick
+    end
+    object SaveButton: TSpeedButton
+      Align = Right
+      Position.X = 288.000000000000000000
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Save'
+      OnClick = SaveButtonClick
+    end
+    object TitleLabel: TLabel
+      Align = Client
+      StyledSettings = [Family, Size, FontColor]
+      Size.Width = 216.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
+      Text = 'Contact'
+      TabOrder = 2
+    end
+  end
+  object Form: TLayout
+    Align = Client
+    Margins.Left = 12.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 12.000000000000000000
+    Margins.Bottom = 8.000000000000000000
+    Size.Width = 336.000000000000000000
+    Size.Height = 540.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object NameLabel: TLabel
+      Align = Top
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Name'
+      TabOrder = 0
+    end
+    object NameEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 1
+      Position.Y = 20.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object JobLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 64.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Job title'
+      TabOrder = 2
+    end
+    object JobEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 3
+      Position.Y = 84.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object EmailLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 128.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Email'
+      TabOrder = 4
+    end
+    object EmailEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 5
+      KeyboardType = EmailAddress
+      Position.Y = 148.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object PhoneLabel: TLabel
+      Align = Top
+      Margins.Top = 8.000000000000000000
+      Position.Y = 192.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Phone'
+      TabOrder = 6
+    end
+    object PhoneEdit: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 7
+      KeyboardType = PhonePad
+      Position.Y = 212.000000000000000000
+      Size.Width = 336.000000000000000000
+      Size.Height = 36.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+end

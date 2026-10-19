@@ -3,7 +3,7 @@ unit ccCRM.App.Frame.Detail;
 { One customer: contact details, classification, notes, extra contacts and the dated log,
   all in a single scrolling list. Calling, emailing and opening the website go through small
   icon buttons at the right of a row; tapping the row itself does nothing, so a stray tap
-  never starts a call.
+  never starts a call. The button on the main contact row opens the additional contacts.
 
   For a customer that is no longer in Wave the "+ Log" button becomes "Delete", which removes
   this app's copy of the obsolete record. }
@@ -13,7 +13,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.StrUtils, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation,
-  FMX.ListBox, FMX.Layouts, FMX.Objects, FMX.TextLayout, FMX.DialogService, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
+  FMX.ListBox, FMX.Layouts, FMX.Objects, FMX.TextLayout, FMX.DialogService, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons, ccCRM.App.Rows;
 
 type
   TDetailFrame = class(TFrame)
@@ -36,10 +36,12 @@ type
     FOnEdit: TProc<TCustomerDetail>;
     FOnAddLog: TProc<string>;
     FOnDeleted: TProc;
+    FOnContacts: TProc<string>;
     procedure AddHeader(const AText: string);
     function AddRow(const AText, ADetail: string; AWrap: Boolean = False): TListBoxItem;
     procedure AddLink(AItem: TListBoxItem; AIcon: TAppIcon; const AUrl: string);
     procedure LinkButtonClick(Sender: TObject);
+    procedure ContactsButtonClick(Sender: TObject);
     procedure RowApplyStyleLookup(Sender: TObject);
     procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
@@ -54,6 +56,8 @@ type
     property OnAddLog: TProc<string> read FOnAddLog write FOnAddLog;
     { The customer was deleted; the frame should be closed. }
     property OnDeleted: TProc read FOnDeleted write FOnDeleted;
+    { Edit the additional contacts of the customer with this Wave id. }
+    property OnContacts: TProc<string> read FOnContacts write FOnContacts;
   end;
 
 implementation
@@ -131,30 +135,17 @@ begin
   end;
 end;
 
-{ Adds an icon button at the right of AItem that opens AUrl ("tel:...", "mailto:...", "http...").
-  Each new button goes to the left of the ones already there. }
+{ Adds an icon button at the right of AItem that opens AUrl ("tel:...", "mailto:...", "http..."). }
 procedure TDetailFrame.AddLink(AItem: TListBoxItem; AIcon: TAppIcon; const AUrl: string);
 begin
-  var Count := 0;
-  for var I := 0 to AItem.ChildrenCount - 1 do
-    if AItem.Children[I] is TSpeedButton then
-      Inc(Count);
-
-  var Button := TSpeedButton.Create(AItem);
-  Button.Parent := AItem;
-  Button.Align := TAlignLayout.Right;
-  Button.Position.X := 10000 - 100 * Count;  // right-aligned controls are ordered by position
-  Button.TagString := AUrl;
-  Button.OnClick := LinkButtonClick;
+  var Hint: string;
   case AIcon of
-    TAppIcon.Phone: Button.Text := 'Call';
-    TAppIcon.Email: Button.Text := 'Email';
+    TAppIcon.Phone: Hint := 'Call';
+    TAppIcon.Email: Hint := 'Email';
   else
-    Button.Text := 'Open';
+    Hint := 'Open';
   end;
-  SetIcon(Button, AIcon);
-
-  RowApplyStyleLookup(AItem);  // make room for the new button now if the style is already applied
+  AddRowButton(AItem, AIcon, Hint, LinkButtonClick).TagString := AUrl;
 end;
 
 procedure TDetailFrame.LinkButtonClick(Sender: TObject);
@@ -162,13 +153,18 @@ begin
   OpenUrl((Sender as TSpeedButton).TagString);
 end;
 
+procedure TDetailFrame.ContactsButtonClick(Sender: TObject);
+begin
+  if FLoaded and Assigned(FOnContacts) then
+    FOnContacts(FWaveId);
+end;
+
 { Adjusts the row's copy of its style, so other rows are unaffected. Runs whenever the row
   (re)applies its style.
   - Wrapped rows: the style's "text" object has WordWrap off and Character trimming of its own,
     and those win over Item.WordWrap while StyledSettings includes Other, so they are switched
     on the text object itself.
-  - Rows with link buttons: the text is kept clear of them, so a long email address isn't drawn
-    under them. }
+  - Rows with buttons: the text is kept clear of them (FitTextToButtons). }
 procedure TDetailFrame.RowApplyStyleLookup(Sender: TObject);
 begin
   var Item := Sender as TListBoxItem;
@@ -183,16 +179,7 @@ begin
     end;
   end;
 
-  var Room: Single := 0;
-  for var I := 0 to Item.ChildrenCount - 1 do
-    if Item.Children[I] is TSpeedButton then
-      Room := Room + TSpeedButton(Item.Children[I]).Width;
-  for var Name in ['text', 'detail'] do
-  begin
-    var Part := Item.FindStyleResource(Name);
-    if Part is TControl then
-      TControl(Part).Margins.Right := Room;
-  end;
+  FitTextToButtons(Item);
 end;
 
 { Sets a word-wrapped row's height to fit its text, including line breaks, at the list's
@@ -241,8 +228,10 @@ begin
     List.Clear;
 
     AddHeader('Contact');
-    if (R.FirstName <> '') or (R.LastName <> '') then
-      AddRow((R.FirstName + ' ' + R.LastName).Trim, 'Main contact');
+    // always shown: its button is the way to the additional contacts
+    var MainName := (R.FirstName + ' ' + R.LastName).Trim;
+    AddRowButton(AddRow(IfThen(MainName <> '', MainName, 'None in Wave'), 'Main contact'),
+      TAppIcon.Contacts, 'Contacts', ContactsButtonClick);
     if R.Email <> '' then
       AddLink(AddRow(R.Email, 'Email'), TAppIcon.Email, 'mailto:' + R.Email);
     if R.Phone <> '' then

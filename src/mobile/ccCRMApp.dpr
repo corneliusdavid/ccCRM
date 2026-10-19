@@ -7,12 +7,15 @@ uses
   ccCRM.App.Api in 'ccCRM.App.Api.pas',
   ccCRM.App.Platform in 'ccCRM.App.Platform.pas',
   ccCRM.App.Icons in 'ccCRM.App.Icons.pas',
+  ccCRM.App.Rows in 'ccCRM.App.Rows.pas',
   ccCRM.App.Frame.Customers in 'ccCRM.App.Frame.Customers.pas' {CustomersFrame: TFrame},
   ccCRM.App.Frame.Detail in 'ccCRM.App.Frame.Detail.pas' {DetailFrame: TFrame},
   ccCRM.App.Frame.Edit in 'ccCRM.App.Frame.Edit.pas' {EditFrame: TFrame},
   ccCRM.App.Frame.Log in 'ccCRM.App.Frame.Log.pas' {LogFrame: TFrame},
   ccCRM.App.Frame.Emails in 'ccCRM.App.Frame.Emails.pas' {EmailsFrame: TFrame},
   ccCRM.App.Frame.Settings in 'ccCRM.App.Frame.Settings.pas' {SettingsFrame: TFrame},
+  ccCRM.App.Frame.Contacts in 'ccCRM.App.Frame.Contacts.pas' {ContactsFrame: TFrame},
+  ccCRM.App.Frame.ContactEdit in 'ccCRM.App.Frame.ContactEdit.pas' {ContactEditFrame: TFrame},
   ccCRM.App.Main in 'ccCRM.App.Main.pas' {MainForm};
 
 {$R *.res}

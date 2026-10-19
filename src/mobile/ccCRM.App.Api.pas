@@ -75,6 +75,10 @@ type
     { Removes a customer that is no longer in Wave (the server refuses others). }
     procedure DeleteCustomer(const AWaveId: string);
     procedure AddLog(const AWaveId: string; AEventDate: TDate; const ASummary: string);
+    { Additional contacts (the main contact comes from Wave and isn't edited here). }
+    procedure AddContact(const AWaveId: string; const AContact: TContactRec);
+    procedure UpdateContact(const AContact: TContactRec);
+    procedure DeleteContact(AContactId: Integer);
     function Emails(const ATypeName, AStatusName: string): TEmailList;
     function SyncNow: string;
   end;
@@ -372,6 +376,51 @@ begin
   finally
     Body.Free;
   end;
+end;
+
+{ Empty fields are sent as JSON null, so the database stores NULL rather than ''. }
+function ContactBody(const AContact: TContactRec): TJSONObject;
+
+  procedure Put(const AKey, AValue: string);
+  begin
+    if Trim(AValue) <> '' then
+      Result.AddPair(AKey, Trim(AValue))
+    else
+      Result.AddPair(AKey, TJSONNull.Create);
+  end;
+
+begin
+  Result := TJSONObject.Create;
+  Put('name', AContact.Name);
+  Put('email', AContact.Email);
+  Put('phone', AContact.Phone);
+  Put('job_title', AContact.JobTitle);
+end;
+
+procedure TCrmApi.AddContact(const AWaveId: string; const AContact: TContactRec);
+begin
+  var Body := ContactBody(AContact);
+  try
+    Body.AddPair('wave_id', AWaveId);
+    Request('POST', '/contacts', Body).Free;
+  finally
+    Body.Free;
+  end;
+end;
+
+procedure TCrmApi.UpdateContact(const AContact: TContactRec);
+begin
+  var Body := ContactBody(AContact);
+  try
+    Request('PUT', '/contacts/' + AContact.Id.ToString, Body).Free;
+  finally
+    Body.Free;
+  end;
+end;
+
+procedure TCrmApi.DeleteContact(AContactId: Integer);
+begin
+  Request('DELETE', '/contacts/' + AContactId.ToString).Free;
 end;
 
 function TCrmApi.Emails(const ATypeName, AStatusName: string): TEmailList;

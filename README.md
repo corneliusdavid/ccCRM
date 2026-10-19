@@ -227,19 +227,21 @@ FMX app (Delphi 12) built on **TFrameStand** (`E:\Delphi\lib\TFrameStand`, add i
 | Frame | Does |
 |---|---|
 | `Customers` | Search (name, email, phones, city, AD group, extra contacts), type and status filters. Searches wait for a pause in typing. |
-| `Detail` | One scrolling list: contact info (tap an email or phone to open the mail or dial app), account (type, status, users, AD group), notes, extra people, the dated log. Toolbar: Edit, + Log. |
+| `Detail` | One scrolling list: contact info (icon buttons on the right call, email or open the website; tapping the row does nothing), account (type and status with a star/frown badge; AD group and users for ABS Cloud only), notes, extra people, the dated log. The button on the main contact row opens `Contacts`. Toolbar: Edit, + Log (Delete for a customer no longer in Wave). |
+| `Contacts` | The main contact from Wave, read-only, then the additional contacts with edit and delete buttons; + adds one. |
+| `ContactEdit` | Name, job title, email and phone of one additional contact (name required). |
 | `Edit` | Your own columns only: type, status, AD group, user count, notes. Name, email, phone and address stay in Wave. |
 | `Log` | Adds a manual log entry; the date defaults to today and can be set earlier to record history. |
 | `Emails` | Email list for a type/status (defaults to Active ABS Cloud). Copy the BCC list or hand it to the email app. |
 | `Settings` | Server base URL, RAD Server application id and secret (stored in the app's private `ccCRM.ini`), Test connection, and "Sync customers from Wave now". |
 
-Code layout: `ccCRM.App.Types` (records + JSON readers), `ccCRM.App.Api` (blocking REST client, settings, and `TAsync.Run<T>` that runs a call on a pool thread and answers on the UI thread unless the frame has been closed), `ccCRM.App.Platform` (open `tel:`/`mailto:`, clipboard), one `ccCRM.App.Frame.*` unit per frame, `ccCRM.App.Main`.
+Code layout: `ccCRM.App.Types` (records + JSON readers), `ccCRM.App.Api` (blocking REST client, settings, and `TAsync.Run<T>` that runs a call on a pool thread and answers on the UI thread unless the frame has been closed), `ccCRM.App.Platform` (open `tel:`/`mailto:`, clipboard), `ccCRM.App.Icons` (vector toolbar and row icons), `ccCRM.App.Rows` (icon buttons at the right of list rows), one `ccCRM.App.Frame.*` unit per frame, `ccCRM.App.Main`.
 
 Status: compiles for Win32 and every frame streams from its `.fmx` (checked headless). **Not yet run against the server, and the Android/iOS branches of `ccCRM.App.Platform` could not be compiled here (no Android SDK libraries installed on this machine).** To do on your side:
 
 - Open `ccCRMApp.dpr` in RAD Studio, add the Android (and/or iOS) target, and enable **Internet** under Project Options > Uses Permissions.
 - Use an **https** server address on Android: cleartext http is blocked by default on current Android versions.
-- Not built yet: adding/editing/deleting extra contacts, editing or deleting a manual log entry, user login (the app currently authenticates with the RAD Server application id/secret only), and the lock/biometric screen.
+- Not built yet: editing or deleting a manual log entry, user login (the app currently authenticates with the RAD Server application id/secret only), and the lock/biometric screen.
 
 ## Open items
 
