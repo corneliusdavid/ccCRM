@@ -65,6 +65,8 @@ type
     { Updates only your own columns; returns the refreshed customer. TypeId/StatusId 0 clears. }
     function UpdateCustomer(const AWaveId: string; ATypeId, AStatusId: Integer;
       const AAdGroup: string; AUserCount: Integer; const ANotes: string): TCustomerDetail;
+    { Removes a customer that is no longer in Wave (the server refuses others). }
+    procedure DeleteCustomer(const AWaveId: string);
     procedure AddLog(const AWaveId: string; AEventDate: TDate; const ASummary: string);
     function Emails(const ATypeName, AStatusName: string): TEmailList;
     function SyncNow: string;
@@ -345,6 +347,11 @@ begin
   finally
     Body.Free;
   end;
+end;
+
+procedure TCrmApi.DeleteCustomer(const AWaveId: string);
+begin
+  Request('DELETE', '/customers/' + TNetEncoding.URL.EncodePath(AWaveId)).Free;
 end;
 
 procedure TCrmApi.AddLog(const AWaveId: string; AEventDate: TDate; const ASummary: string);

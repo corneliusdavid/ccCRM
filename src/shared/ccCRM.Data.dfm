@@ -443,4 +443,43 @@ object dmccCRM: TdmccCRM
         ParamType = ptInput
       end>
   end
+  object cmdDeleteCustomerContacts: TFDQuery
+    Connection = Conn
+    SQL.Strings = (
+      'DELETE FROM CONTACT WHERE WAVE_ID = :WAVE_ID')
+    Left = 740
+    Top = 136
+    ParamData = <
+      item
+        Name = 'WAVE_ID'
+        DataType = ftWideString
+        ParamType = ptInput
+      end>
+  end
+  object cmdDeleteCustomerLog: TFDQuery
+    Connection = Conn
+    SQL.Strings = (
+      'DELETE FROM CUSTOMER_LOG WHERE WAVE_ID = :WAVE_ID')
+    Left = 840
+    Top = 24
+    ParamData = <
+      item
+        Name = 'WAVE_ID'
+        DataType = ftWideString
+        ParamType = ptInput
+      end>
+  end
+  object cmdDeleteCustomer: TFDQuery
+    Connection = Conn
+    SQL.Strings = (
+      'DELETE FROM CUSTOMER WHERE WAVE_ID = :WAVE_ID AND NOT IN_WAVE')
+    Left = 840
+    Top = 80
+    ParamData = <
+      item
+        Name = 'WAVE_ID'
+        DataType = ftWideString
+        ParamType = ptInput
+      end>
+  end
 end

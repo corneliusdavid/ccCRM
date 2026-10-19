@@ -1,14 +1,17 @@
 unit ccCRM.App.Frame.Detail;
 
 { One customer: contact details (tap to call / email), classification, notes, extra contacts
-  and the dated log, all in a single scrolling list. }
+  and the dated log, all in a single scrolling list.
+
+  For a customer that is no longer in Wave the "+ Log" button becomes "Delete", which removes
+  this app's copy of the obsolete record. }
 
 interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.StrUtils, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation,
-  FMX.ListBox, FMX.Layouts, FMX.TextLayout, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
+  FMX.ListBox, FMX.Layouts, FMX.TextLayout, FMX.DialogService, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
 
 type
   TDetailFrame = class(TFrame)
@@ -31,10 +34,12 @@ type
     FOnBack: TProc;
     FOnEdit: TProc<TCustomerDetail>;
     FOnAddLog: TProc<string>;
+    FOnDeleted: TProc;
     procedure AddHeader(const AText: string);
     procedure AddRow(const AText, ADetail: string; const AAction: string = ''; AWrap: Boolean = False);
     procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
+    procedure DeleteCustomer;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -43,6 +48,8 @@ type
     property OnBack: TProc read FOnBack write FOnBack;
     property OnEdit: TProc<TCustomerDetail> read FOnEdit write FOnEdit;
     property OnAddLog: TProc<string> read FOnAddLog write FOnAddLog;
+    { The customer was deleted; the frame should be closed. }
+    property OnDeleted: TProc read FOnDeleted write FOnDeleted;
   end;
 
 implementation
@@ -159,6 +166,7 @@ begin
   TitleLabel.Text := R.Name;
   EditButton.Enabled := True;
   LogButton.Enabled := True;
+  LogButton.Text := IfThen(R.InWave, '+ Log', 'Delete');
 
   List.BeginUpdate;
   try
@@ -242,8 +250,47 @@ end;
 
 procedure TDetailFrame.LogButtonClick(Sender: TObject);
 begin
-  if FLoaded and Assigned(FOnAddLog) then
+  if not FLoaded then
+    Exit;
+  if not FDetail.Row.InWave then
+    DeleteCustomer
+  else if Assigned(FOnAddLog) then
     FOnAddLog(FWaveId);
+end;
+
+{ Asks first: the customer's notes, contacts and log go with it. }
+procedure TDetailFrame.DeleteCustomer;
+begin
+  var Id := FWaveId;
+  var Alive := FAlive;
+  TDialogService.MessageDialog(
+    Format('Delete %s? It is no longer in Wave; its notes, contacts and log will be removed too.',
+      [FDetail.Row.Name]),
+    TMsgDlgType.mtConfirmation, [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo, 0,
+    procedure(const AResult: TModalResult)
+    begin
+      if (AResult <> mrYes) or not Alive.Alive then
+        Exit;
+      LogButton.Enabled := False;
+      EditButton.Enabled := False;
+      TAsync.Run<Boolean>(Alive,
+        function: Boolean
+        begin
+          Crm.DeleteCustomer(Id);
+          Result := True;
+        end,
+        procedure(ADone: Boolean)
+        begin
+          if Assigned(FOnDeleted) then
+            FOnDeleted();
+        end,
+        procedure(AError: string)
+        begin
+          LogButton.Enabled := True;
+          EditButton.Enabled := True;
+          ShowMessage(AError);
+        end);
+    end);
 end;
 
 end.

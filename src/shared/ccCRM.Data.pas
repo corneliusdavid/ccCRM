@@ -10,8 +10,9 @@ unit ccCRM.Data;
   All SQL lives in the components on the data module (see the .dfm).
 
   Wave-owned columns are overwritten; your columns (type, status, AD group, user
-  count, notes, logo) are never touched. Rows are never deleted: customers that
-  disappear from Wave get IN_WAVE = FALSE. Wave itself is never written to. }
+  count, notes, logo) are never touched. Sync never deletes rows: customers that
+  disappear from Wave get IN_WAVE = FALSE, and only you remove them afterwards
+  (DeleteMissingCustomer). Wave itself is never written to. }
 
 interface
 
@@ -47,6 +48,9 @@ type
     cmdAddLog: TFDQuery;
     cmdUpdateLog: TFDQuery;
     cmdDeleteLog: TFDQuery;
+    cmdDeleteCustomerContacts: TFDQuery;
+    cmdDeleteCustomerLog: TFDQuery;
+    cmdDeleteCustomer: TFDQuery;
   private
     FOnLog: TccCRMLogEvent;
     procedure DoLog(const AMessage: string);
@@ -55,6 +59,9 @@ type
     { Upserts all customers in one transaction and flags the ones Wave no longer returns. }
     function SyncCustomers(const ACustomers: TArray<TWaveCustomer>): TSyncResult;
     function CustomerCount: Integer;
+    { Removes a customer that is no longer in Wave, with its contacts and log, in one
+      transaction. False (nothing removed) if the id is unknown or the customer is still in Wave. }
+    function DeleteMissingCustomer(const AWaveId: string): Boolean;
     property OnLog: TccCRMLogEvent read FOnLog write FOnLog;
   end;
 
@@ -218,6 +225,28 @@ begin
 
   DoLog(Format('Sync done: %d fetched, %d added, %d updated, %d marked missing.',
     [Result.Fetched, Result.Added, Result.Updated, Result.MarkedMissing]));
+end;
+
+function TdmccCRM.DeleteMissingCustomer(const AWaveId: string): Boolean;
+begin
+  Conn.StartTransaction;
+  try
+    cmdDeleteCustomerContacts.ParamByName('WAVE_ID').AsString := AWaveId;
+    cmdDeleteCustomerContacts.ExecSQL;
+    cmdDeleteCustomerLog.ParamByName('WAVE_ID').AsString := AWaveId;
+    cmdDeleteCustomerLog.ExecSQL;
+    // the IN_WAVE test is in this statement; if it matches nothing, the child deletes are undone
+    cmdDeleteCustomer.ParamByName('WAVE_ID').AsString := AWaveId;
+    cmdDeleteCustomer.ExecSQL;
+    Result := cmdDeleteCustomer.RowsAffected > 0;
+    if Result then
+      Conn.Commit
+    else
+      Conn.Rollback;
+  except
+    Conn.Rollback;
+    raise;
+  end;
 end;
 
 initialization

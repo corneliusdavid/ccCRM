@@ -125,6 +125,12 @@ begin
         begin
           OpenLog(F, AId);
         end;
+      F.OnDeleted :=
+        procedure
+        begin
+          ClosePage(F);
+          FCustomers.Reload;
+        end;
       F.Load(AWaveId);
     end);
 end;

@@ -5,7 +5,8 @@ unit ccCRM.Server.Resources;
   when the request ends.
 
   Resources
-    customers      GET (q, type_id, status_id) | GET /item | PUT /item
+    customers      GET (q, type_id, status_id) | GET /item | PUT /item | DELETE /item
+                                                         (DELETE: only if no longer in Wave)
     contacts       POST | PUT /item | DELETE /item
     customerlog    POST | PUT /item | DELETE /item       (manual entries only)
     lookups        GET                                   (types + statuses)
@@ -44,6 +45,9 @@ type
       const AResponse: TEndpointResponse);
     [ResourceSuffix('{item}')]
     procedure PutItem(const AContext: TEndpointContext; const ARequest: TEndpointRequest;
+      const AResponse: TEndpointResponse);
+    [ResourceSuffix('{item}')]
+    procedure DeleteItem(const AContext: TEndpointContext; const ARequest: TEndpointRequest;
       const AResponse: TEndpointResponse);
   end;
 
@@ -281,6 +285,29 @@ begin
   Cmd.ExecSQL;
 
   AResponse.Body.SetValue(CustomerJson(Id), True);
+end;
+
+{ Removes an obsolete customer (deleted in Wave) with its contacts and log. Customers still in
+  Wave answer 409: the next sync would only bring them back. }
+procedure TCustomersResource.DeleteItem(const AContext: TEndpointContext;
+  const ARequest: TEndpointRequest; const AResponse: TEndpointResponse);
+begin
+  var Id := QueryValue(ARequest, 'item');
+  var Cur := Data.qCustomer;
+  Cur.ParamByName('WAVE_ID').AsString := Id;
+  Cur.Open;
+  try
+    if Cur.Eof then
+      EEMSHTTPError.RaiseNotFound('not_found', 'Unknown customer.');
+    if Cur.FieldByName('IN_WAVE').AsBoolean then
+      EEMSHTTPError.RaiseError(409, 'conflict', 'This customer is still in Wave.');
+  finally
+    Cur.Close;
+  end;
+
+  if not Data.DeleteMissingCustomer(Id) then
+    EEMSHTTPError.RaiseError(409, 'conflict', 'This customer is still in Wave.');
+  RespondRows(AResponse, 1);
 end;
 
 { TContactsResource }

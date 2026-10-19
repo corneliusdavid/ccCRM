@@ -26,7 +26,7 @@ Non-goals (for now): prospect tracking (all customers come from the ABS software
 |---|---|
 | Master data | Wave. A customer must exist in Wave before it exists here. |
 | Writes to Wave | **None.** The app never deletes or modifies Wave data. It is read-only toward Wave. |
-| Customers disappearing from Wave | Sync sets `IN_WAVE = 0`; the row, notes and log are kept. Never deleted. |
+| Customers disappearing from Wave | Sync sets `IN_WAVE = 0`; the row, notes and log are kept. Sync never deletes; you can delete an obsolete record yourself (app: Details, **Delete**), which removes its contacts and log too. |
 | Database | **Firebird 5** (switched from InterBase). An existing Firebird database will be imported later (check its version; older files need a `gbak` backup/restore). Open check: that your FireDAC version accepts the Firebird 5 client library. |
 | Server | Existing RAD Server on an ABS Cloud server. Not the RDWeb pages. |
 | Client | FMX mobile app first (tap-to-call, tap-to-email, search). A web page can reuse the same endpoints later. |
@@ -118,7 +118,7 @@ Type is a parameter, so any group can be blasted. Add `CONTACT.EMAIL` rows with 
 1. Fetch all customers (loop pages).
 2. For each: `UPDATE OR INSERT INTO CUSTOMER (...Wave-owned columns..., IN_WAVE, SYNCED_AT) VALUES (..., TRUE, CURRENT_TIMESTAMP) MATCHING (WAVE_ID)`. Only Wave-owned columns are listed, so your columns survive; new rows get NULL type/status. (Example at the bottom of `schema-programmability.sql`.)
 3. Any `CUSTOMER` row not seen in this run: `UPDATE CUSTOMER SET IN_WAVE = FALSE WHERE IN_WAVE AND SYNCED_AT < :SYNC_START`.
-4. Never `DELETE`, never write to Wave.
+4. Sync never `DELETE`s, never writes to Wave.
 5. Use the field mapping: `province.code` goes to `STATE_CODE`; null Wave strings go to NULL.
 
 ---
@@ -203,7 +203,7 @@ Compiles (Win32 and Win64, Delphi 12) but has **not been run against RAD Server 
 
 | Resource | Methods | Notes |
 |---|---|---|
-| `customers` | `GET ?q=&type_id=&status_id=`; `GET /{wave_id}`; `PUT /{wave_id}` | List searches name, contact, email, phones, AD group, city **and additional contacts**. Detail includes `contacts` and `log`. PUT updates only `type_id`, `status_id`, `ad_group`, `user_count`, `notes`: missing keys keep their value, JSON `null` clears. Returns the updated customer. |
+| `customers` | `GET ?q=&type_id=&status_id=`; `GET /{wave_id}`; `PUT /{wave_id}`; `DELETE /{wave_id}` | List searches name, contact, email, phones, AD group, city **and additional contacts**. Detail includes `contacts` and `log`. PUT updates only `type_id`, `status_id`, `ad_group`, `user_count`, `notes`: missing keys keep their value, JSON `null` clears. Returns the updated customer. DELETE only works for customers no longer in Wave (409 otherwise, 404 if unknown) and removes their contacts and log in the same transaction. |
 | `contacts` | `POST`; `PUT /{id}`; `DELETE /{id}` | POST body needs `wave_id`; PUT replaces `name`, `email`, `phone`, `job_title`. Returns `{"rows": n}`; 404 if nothing matched. |
 | `customerlog` | `POST`; `PUT /{id}`; `DELETE /{id}` | **Manual entries only** (automatic ones are protected by the SQL; they answer 404). POST needs `wave_id` and `summary`; `event_date` (`yyyy-mm-dd`) defaults to today, so back-dating is just a different date. |
 | `lookups` | `GET` | `{types:[...], statuses:[...]}` for pickers and the email filter. |
