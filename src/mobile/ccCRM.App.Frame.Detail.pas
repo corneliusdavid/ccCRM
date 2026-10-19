@@ -1,7 +1,9 @@
 unit ccCRM.App.Frame.Detail;
 
-{ One customer: contact details (tap to call / email), classification, notes, extra contacts
-  and the dated log, all in a single scrolling list.
+{ One customer: contact details, classification, notes, extra contacts and the dated log,
+  all in a single scrolling list. Calling, emailing and opening the website go through small
+  icon buttons at the right of a row; tapping the row itself does nothing, so a stray tap
+  never starts a call.
 
   For a customer that is no longer in Wave the "+ Log" button becomes "Delete", which removes
   this app's copy of the obsolete record. }
@@ -24,7 +26,6 @@ type
     procedure BackButtonClick(Sender: TObject);
     procedure EditButtonClick(Sender: TObject);
     procedure LogButtonClick(Sender: TObject);
-    procedure ListItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
     procedure ListResize(Sender: TObject);
   private
     FAlive: IAlive;
@@ -36,7 +37,10 @@ type
     FOnAddLog: TProc<string>;
     FOnDeleted: TProc;
     procedure AddHeader(const AText: string);
-    function AddRow(const AText, ADetail: string; const AAction: string = ''; AWrap: Boolean = False): TListBoxItem;
+    function AddRow(const AText, ADetail: string; AWrap: Boolean = False): TListBoxItem;
+    procedure AddLink(AItem: TListBoxItem; AIcon: TAppIcon; const AUrl: string);
+    procedure LinkButtonClick(Sender: TObject);
+    procedure LinkRowApplyStyleLookup(Sender: TObject);
     procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
     procedure DeleteCustomer;
@@ -110,8 +114,7 @@ begin
   H.Text := AText;
 end;
 
-{ AAction is "tel:..." or "mailto:..." and is opened when the row is tapped. }
-function TDetailFrame.AddRow(const AText, ADetail, AAction: string; AWrap: Boolean): TListBoxItem;
+function TDetailFrame.AddRow(const AText, ADetail: string; AWrap: Boolean): TListBoxItem;
 begin
   var Item := TListBoxItem.Create(List);
   Result := Item;
@@ -119,13 +122,61 @@ begin
   Item.StyleLookup := 'listboxitembottomdetail';
   Item.Text := AText;
   Item.ItemData.Detail := ADetail;
-  Item.TagString := AAction;
   Item.Height := 52;
   if AWrap then
   begin
     Item.WordWrap := True;
     Item.Tag := WrapTag;
     SizeWrappedRow(Item);
+  end;
+end;
+
+{ Adds an icon button at the right of AItem that opens AUrl ("tel:...", "mailto:...", "http...").
+  Each new button goes to the left of the ones already there. }
+procedure TDetailFrame.AddLink(AItem: TListBoxItem; AIcon: TAppIcon; const AUrl: string);
+begin
+  var Count := 0;
+  for var I := 0 to AItem.ChildrenCount - 1 do
+    if AItem.Children[I] is TSpeedButton then
+      Inc(Count);
+
+  var Button := TSpeedButton.Create(AItem);
+  Button.Parent := AItem;
+  Button.Align := TAlignLayout.Right;
+  Button.Position.X := 10000 - 100 * Count;  // right-aligned controls are ordered by position
+  Button.TagString := AUrl;
+  Button.OnClick := LinkButtonClick;
+  case AIcon of
+    TAppIcon.Phone: Button.Text := 'Call';
+    TAppIcon.Email: Button.Text := 'Email';
+  else
+    Button.Text := 'Open';
+  end;
+  SetIcon(Button, AIcon);
+
+  AItem.OnApplyStyleLookup := LinkRowApplyStyleLookup;
+  LinkRowApplyStyleLookup(AItem);
+end;
+
+procedure TDetailFrame.LinkButtonClick(Sender: TObject);
+begin
+  OpenUrl((Sender as TSpeedButton).TagString);
+end;
+
+{ Keeps the row's text clear of its link buttons, so a long email address isn't drawn under
+  them. Runs again whenever the row re-applies its style. }
+procedure TDetailFrame.LinkRowApplyStyleLookup(Sender: TObject);
+begin
+  var Item := Sender as TListBoxItem;
+  var Room: Single := 0;
+  for var I := 0 to Item.ChildrenCount - 1 do
+    if Item.Children[I] is TSpeedButton then
+      Room := Room + TSpeedButton(Item.Children[I]).Width;
+  for var Name in ['text', 'detail'] do
+  begin
+    var Part := Item.FindStyleResource(Name);
+    if Part is TControl then
+      TControl(Part).Margins.Right := Room;
   end;
 end;
 
@@ -178,13 +229,14 @@ begin
     if (R.FirstName <> '') or (R.LastName <> '') then
       AddRow((R.FirstName + ' ' + R.LastName).Trim, 'Main contact');
     if R.Email <> '' then
-      AddRow(R.Email, 'Email', 'mailto:' + R.Email);
+      AddLink(AddRow(R.Email, 'Email'), TAppIcon.Email, 'mailto:' + R.Email);
     if R.Phone <> '' then
-      AddRow(R.Phone, 'Phone', 'tel:' + R.Phone);
+      AddLink(AddRow(R.Phone, 'Phone'), TAppIcon.Phone, 'tel:' + R.Phone);
     if R.Mobile <> '' then
-      AddRow(R.Mobile, 'Mobile', 'tel:' + R.Mobile);
+      AddLink(AddRow(R.Mobile, 'Mobile'), TAppIcon.Phone, 'tel:' + R.Mobile);
     if FDetail.Website <> '' then
-      AddRow(FDetail.Website, 'Website', IfThen(FDetail.Website.StartsWith('http'), '', 'http://') + FDetail.Website);
+      AddLink(AddRow(FDetail.Website, 'Website'), TAppIcon.Web,
+        IfThen(FDetail.Website.StartsWith('http'), '', 'http://') + FDetail.Website);
     var Address := (FDetail.Address1 + ' ' + FDetail.Address2).Trim;
     var CityLine := (R.City + ' ' + R.StateCode + ' ' + FDetail.PostalCode).Trim;
     if (Address <> '') or (CityLine <> '') then
@@ -218,7 +270,7 @@ begin
     if FDetail.Notes <> '' then
     begin
       AddHeader('Notes');
-      AddRow(FDetail.Notes, '', '', True);
+      AddRow(FDetail.Notes, '', True);
     end;
 
     if Length(FDetail.Contacts) > 0 then
@@ -231,27 +283,20 @@ begin
           Info := Info + IfThen(Info <> '', ' - ', '') + C.Email;
         if C.Phone <> '' then
           Info := Info + IfThen(Info <> '', ' - ', '') + C.Phone;
-        var Action := '';
+        var Row := AddRow(C.Name, Info);
         if C.Phone <> '' then
-          Action := 'tel:' + C.Phone
-        else if C.Email <> '' then
-          Action := 'mailto:' + C.Email;
-        AddRow(C.Name, Info, Action);
+          AddLink(Row, TAppIcon.Phone, 'tel:' + C.Phone);
+        if C.Email <> '' then
+          AddLink(Row, TAppIcon.Email, 'mailto:' + C.Email);
       end;
     end;
 
     AddHeader('Log');
     for var L in FDetail.Log do
-      AddRow(L.Summary, L.EventDate + IfThen(L.Manual, '', ' - automatic'), '', True);
+      AddRow(L.Summary, L.EventDate + IfThen(L.Manual, '', ' - automatic'), True);
   finally
     List.EndUpdate;
   end;
-end;
-
-procedure TDetailFrame.ListItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
-begin
-  if Item.TagString <> '' then
-    OpenUrl(Item.TagString);
 end;
 
 procedure TDetailFrame.BackButtonClick(Sender: TObject);

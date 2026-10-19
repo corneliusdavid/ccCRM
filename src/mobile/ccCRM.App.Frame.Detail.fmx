@@ -55,7 +55,6 @@ object DetailFrame: TDetailFrame
     DefaultItemStyles.ItemStyle = ''
     DefaultItemStyles.GroupHeaderStyle = ''
     DefaultItemStyles.GroupFooterStyle = ''
-    OnItemClick = ListItemClick
     Viewport.Width = 356.000000000000000000
     Viewport.Height = 552.000000000000000000
   end
