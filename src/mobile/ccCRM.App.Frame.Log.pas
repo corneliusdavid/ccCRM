@@ -9,7 +9,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types, FMX.Controls,
   FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation,
   FMX.Layouts, FMX.Memo, FMX.Memo.Types, FMX.ScrollBox, FMX.DateTimeCtrls,
-  ccCRM.App.Types, ccCRM.App.Api;
+  ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Icons;
 
 type
   TLogFrame = class(TFrame)
@@ -45,6 +45,8 @@ constructor TLogFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FAlive := TAlive.Create;
+  SetIcon(CancelButton, TAppIcon.Cancel);
+  SetIcon(SaveButton, TAppIcon.Save);
   DateEdit.Date := Date;
 end;
 

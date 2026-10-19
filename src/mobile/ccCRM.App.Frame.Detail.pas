@@ -8,7 +8,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.StrUtils, FMX.Types,
   FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation,
-  FMX.ListBox, FMX.Layouts, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform;
+  FMX.ListBox, FMX.Layouts, FMX.TextLayout, System.Math, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
 
 type
   TDetailFrame = class(TFrame)
@@ -22,6 +22,7 @@ type
     procedure EditButtonClick(Sender: TObject);
     procedure LogButtonClick(Sender: TObject);
     procedure ListItemClick(const Sender: TCustomListBox; const Item: TListBoxItem);
+    procedure ListResize(Sender: TObject);
   private
     FAlive: IAlive;
     FWaveId: string;
@@ -32,6 +33,7 @@ type
     FOnAddLog: TProc<string>;
     procedure AddHeader(const AText: string);
     procedure AddRow(const AText, ADetail: string; const AAction: string = ''; AWrap: Boolean = False);
+    procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
   public
     constructor Create(AOwner: TComponent); override;
@@ -47,12 +49,18 @@ implementation
 
 {$R *.fmx}
 
+const
+  WrapTag = 1;  // Tag of rows whose height follows their word-wrapped text
+
 constructor TDetailFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FAlive := TAlive.Create;
+  SetIcon(BackButton, TAppIcon.Back);
+  SetIcon(EditButton, TAppIcon.Edit);
   EditButton.Enabled := False;
   LogButton.Enabled := False;
+  List.OnResize := ListResize;
 end;
 
 destructor TDetailFrame.Destroy;
@@ -107,8 +115,42 @@ begin
   if AWrap then
   begin
     Item.WordWrap := True;
-    Item.Height := 36 + 20 * (Length(AText) div 34 + 1);
+    Item.Tag := WrapTag;
+    SizeWrappedRow(Item);
   end;
+end;
+
+{ Sets a word-wrapped row's height to fit its text, including line breaks, at the list's
+  current width. }
+procedure TDetailFrame.SizeWrappedRow(AItem: TListBoxItem);
+const
+  SidePadding = 32;  // item padding plus room for a scroll bar
+  ExtraHeight = 34;  // the detail line under the text, plus top and bottom padding
+begin
+  AItem.ApplyStyleLookup;  // so the font is the style's, not the default
+  var Layout := TTextLayoutManager.DefaultTextLayout.Create;
+  try
+    Layout.BeginUpdate;
+    try
+      Layout.Font := AItem.ResultingTextSettings.Font;
+      Layout.WordWrap := True;
+      Layout.MaxSize := TPointF.Create(Max(List.Width - SidePadding, 100), 100000);
+      Layout.Text := AItem.Text;
+    finally
+      Layout.EndUpdate;
+    end;
+    AItem.Height := Ceil(Layout.Height) + ExtraHeight;
+  finally
+    Layout.Free;
+  end;
+end;
+
+{ Rotating the phone or resizing the window changes how the long rows wrap. }
+procedure TDetailFrame.ListResize(Sender: TObject);
+begin
+  for var I := 0 to List.Count - 1 do
+    if List.ListItems[I].Tag = WrapTag then
+      SizeWrappedRow(List.ListItems[I]);
 end;
 
 procedure TDetailFrame.Fill;

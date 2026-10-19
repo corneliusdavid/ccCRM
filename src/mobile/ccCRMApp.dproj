@@ -4,12 +4,12 @@
         <MainSource>ccCRMApp.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <ProjectName Condition="'$(ProjectName)'==''">ccCRMApp</ProjectName>
         <TargetedPlatforms>33794</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>FMX</FrameworkType>
         <ProjectVersion>20.3</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <ProjectName Condition="'$(ProjectName)'==''">ccCRMApp</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -312,6 +312,7 @@
         <DCCReference Include="ccCRM.App.Types.pas"/>
         <DCCReference Include="ccCRM.App.Api.pas"/>
         <DCCReference Include="ccCRM.App.Platform.pas"/>
+        <DCCReference Include="ccCRM.App.Icons.pas"/>
         <DCCReference Include="ccCRM.App.Frame.Customers.pas">
             <Form>CustomersFrame</Form>
             <DesignClass>TFrame</DesignClass>

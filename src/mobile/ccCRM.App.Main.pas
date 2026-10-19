@@ -11,7 +11,7 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, FMX.Layouts, FrameStand, ccCRM.App.Types, ccCRM.App.Api,
   ccCRM.App.Frame.Customers, ccCRM.App.Frame.Detail, ccCRM.App.Frame.Edit,
-  ccCRM.App.Frame.Log, ccCRM.App.Frame.Emails, ccCRM.App.Frame.Settings, SubjectStand;
+  ccCRM.App.Frame.Log, ccCRM.App.Frame.Emails, ccCRM.App.Frame.Settings, SubjectStand, ccCRM.App.Icons;
 
 type
   TMainForm = class(TForm)
@@ -21,6 +21,7 @@ type
     EmailsButton: TSpeedButton;
     Host: TLayout;
     FrameStand1: TFrameStand;
+    ccStyleBook: TStyleBook;
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure SettingsButtonClick(Sender: TObject);
@@ -28,6 +29,7 @@ type
   private
     FCustomers: TCustomersFrame;
     FPages: TList<TFrame>;   // open pages above the customer list; topmost last
+    function TopPage: TFrame;
     procedure ClosePage(AFrame: TFrame);
     function Open<T: TFrame>(const AConfig: TProc<T>): T;
     procedure OpenDetail(const AWaveId: string);
@@ -55,6 +57,7 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FPages := TList<TFrame>.Create;
+  SetIcon(SettingsButton, TAppIcon.Settings);
   FCustomers := FrameStand1.NewAndShow<TCustomersFrame>(Host, '',
     procedure(F: TCustomersFrame)
     begin
@@ -69,16 +72,28 @@ begin
     OpenSettings;
 end;
 
+function TMainForm.TopPage: TFrame;
+begin
+  if FPages.Count > 0 then
+    Result := FPages.Last
+  else
+    Result := FCustomers;
+end;
+
+{ Frames have no background, so only the topmost page is kept visible; otherwise the
+  pages underneath show (and can be clicked) through it. }
 procedure TMainForm.ClosePage(AFrame: TFrame);
 begin
   FPages.Remove(AFrame);
   var Info := FrameStand1.FrameInfo(AFrame);
   if Info <> nil then
     Info.HideAndClose;
+  TopPage.Visible := True;
 end;
 
 function TMainForm.Open<T>(const AConfig: TProc<T>): T;
 begin
+  TopPage.Visible := False;
   Result := FrameStand1.NewAndShow<T>(Host, '',
     procedure(F: T)
     begin

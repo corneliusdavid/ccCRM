@@ -8,7 +8,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types, FMX.Controls,
   FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation, FMX.Edit,
-  FMX.Layouts, ccCRM.App.Types, ccCRM.App.Api;
+  FMX.Layouts, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Icons;
 
 type
   TSettingsFrame = class(TFrame)
@@ -50,6 +50,8 @@ constructor TSettingsFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FAlive := TAlive.Create;
+  SetIcon(BackButton, TAppIcon.Back);
+  SetIcon(SaveButton, TAppIcon.Save);
   var S := Crm.Settings;
   UrlEdit.Text := S.BaseUrl;
   IdEdit.Text := S.AppId;

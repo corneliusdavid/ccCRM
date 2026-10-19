@@ -27,11 +27,11 @@ object SettingsFrame: TSettingsFrame
     object TitleLabel: TLabel
       Align = Client
       StyledSettings = [Family, Size, FontColor]
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-      TextSettings.HorzAlign = Center
       Size.Width = 232.000000000000000000
       Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
       Text = 'Settings'
       TabOrder = 2
     end
@@ -58,12 +58,12 @@ object SettingsFrame: TSettingsFrame
       Touch.InteractiveGestures = [LongTap, DoubleTap]
       Align = Top
       TabOrder = 1
-      TextPrompt = 'https://server/radserver'
       KeyboardType = URL
       Position.Y = 20.000000000000000000
       Size.Width = 336.000000000000000000
       Size.Height = 36.000000000000000000
       Size.PlatformDefault = False
+      TextPrompt = 'https://server/radserver'
     end
     object IdLabel: TLabel
       Align = Top
@@ -113,7 +113,6 @@ object SettingsFrame: TSettingsFrame
       Size.PlatformDefault = False
       TabOrder = 6
       Text = 'Test connection'
-      TextSettings.Trimming = None
       OnClick = TestButtonClick
     end
     object SyncButton: TButton
@@ -125,16 +124,14 @@ object SettingsFrame: TSettingsFrame
       Size.PlatformDefault = False
       TabOrder = 7
       Text = 'Sync customers from Wave now'
-      TextSettings.Trimming = None
       OnClick = SyncButtonClick
     end
     object ResultLabel: TLabel
       Align = Client
       Margins.Top = 12.000000000000000000
       Size.Width = 336.000000000000000000
-      Size.Height = 200.000000000000000000
+      Size.Height = 232.000000000000000000
       Size.PlatformDefault = False
-      TextSettings.WordWrap = True
       TextSettings.VertAlign = Leading
       Text = ' '
       TabOrder = 8

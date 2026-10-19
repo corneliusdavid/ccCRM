@@ -9,7 +9,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.NetEncoding,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, FMX.ListBox, FMX.Layouts, FMX.Memo, FMX.Memo.Types,
-  FMX.ScrollBox, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform;
+  FMX.ScrollBox, ccCRM.App.Types, ccCRM.App.Api, ccCRM.App.Platform, ccCRM.App.Icons;
 
 type
   TEmailsFrame = class(TFrame)
@@ -49,6 +49,7 @@ constructor TEmailsFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FAlive := TAlive.Create;
+  SetIcon(BackButton, TAppIcon.Back);
   TypeCombo.Items.Add('Any type');
   StatusCombo.Items.Add('Any status');
   TypeCombo.ItemIndex := 0;

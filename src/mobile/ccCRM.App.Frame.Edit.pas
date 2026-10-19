@@ -9,7 +9,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, FMX.Types, FMX.Controls,
   FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls, FMX.Controls.Presentation, FMX.Edit,
   FMX.ListBox, FMX.Layouts, FMX.Memo, FMX.Memo.Types, FMX.ScrollBox, FMX.SpinBox,
-  ccCRM.App.Types, ccCRM.App.Api;
+  ccCRM.App.Types, ccCRM.App.Api, FMX.EditBox, ccCRM.App.Icons;
 
 type
   TEditFrame = class(TFrame)
@@ -55,6 +55,8 @@ constructor TEditFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FAlive := TAlive.Create;
+  SetIcon(CancelButton, TAppIcon.Cancel);
+  SetIcon(SaveButton, TAppIcon.Save);
 end;
 
 destructor TEditFrame.Destroy;

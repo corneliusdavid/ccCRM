@@ -27,11 +27,11 @@ object LogFrame: TLogFrame
     object TitleLabel: TLabel
       Align = Client
       StyledSettings = [Family, Size, FontColor]
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-      TextSettings.HorzAlign = Center
       Size.Width = 216.000000000000000000
       Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
       Text = 'Add log entry'
       TabOrder = 2
     end
@@ -76,6 +76,7 @@ object LogFrame: TLogFrame
     object SummaryMemo: TMemo
       Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
       DataDetectorTypes = []
+      TextSettings.WordWrap = True
       Align = Client
       Size.Width = 336.000000000000000000
       Size.Height = 456.000000000000000000

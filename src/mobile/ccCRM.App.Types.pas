@@ -79,6 +79,9 @@ function ParseLookupArray(AArr: TJSONArray; const AIdKey: string): TArray<TLooku
 
 implementation
 
+uses
+  System.Generics.Collections;
+
 function JStr(AObj: TJSONObject; const AName: string): string;
 begin
   Result := '';

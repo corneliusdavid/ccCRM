@@ -6,6 +6,7 @@ uses
   ccCRM.App.Types in 'ccCRM.App.Types.pas',
   ccCRM.App.Api in 'ccCRM.App.Api.pas',
   ccCRM.App.Platform in 'ccCRM.App.Platform.pas',
+  ccCRM.App.Icons in 'ccCRM.App.Icons.pas',
   ccCRM.App.Frame.Customers in 'ccCRM.App.Frame.Customers.pas' {CustomersFrame: TFrame},
   ccCRM.App.Frame.Detail in 'ccCRM.App.Frame.Detail.pas' {DetailFrame: TFrame},
   ccCRM.App.Frame.Edit in 'ccCRM.App.Frame.Edit.pas' {EditFrame: TFrame},

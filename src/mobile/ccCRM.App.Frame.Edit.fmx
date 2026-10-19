@@ -27,12 +27,11 @@ object EditFrame: TEditFrame
     object TitleLabel: TLabel
       Align = Client
       StyledSettings = [Family, Size, FontColor]
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-      TextSettings.HorzAlign = Center
-      TextSettings.Trimming = Character
       Size.Width = 216.000000000000000000
       Size.Height = 44.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Center
       Text = 'Edit'
       TabOrder = 2
     end
@@ -49,7 +48,6 @@ object EditFrame: TEditFrame
     TabOrder = 1
     object TypeLabel: TLabel
       Align = Top
-      Position.Y = 0.000000000000000000
       Size.Width = 336.000000000000000000
       Size.Height = 20.000000000000000000
       Size.PlatformDefault = False
@@ -117,7 +115,6 @@ object EditFrame: TEditFrame
       TabOrder = 7
       Cursor = crIBeam
       Max = 10000.000000000000000000
-      ValueType = Integer
       Position.Y = 240.000000000000000000
       Size.Width = 336.000000000000000000
       Size.Height = 50.000000000000000000
@@ -136,13 +133,14 @@ object EditFrame: TEditFrame
     object NotesMemo: TMemo
       Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
       DataDetectorTypes = []
+      TextSettings.WordWrap = True
       Align = Client
       Size.Width = 336.000000000000000000
-      Size.Height = 264.000000000000000000
+      Size.Height = 222.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 9
-      Viewport.Width = 332.000000000000000000
-      Viewport.Height = 260.000000000000000000
+      Viewport.Width = 336.000000000000000000
+      Viewport.Height = 222.000000000000000000
     end
   end
 end

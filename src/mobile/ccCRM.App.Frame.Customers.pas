@@ -162,11 +162,11 @@ begin
       var Open := TButton.Create(Item);
       Open.Parent := Item;
       Open.Align := TAlignLayout.Right;
-      Open.Width := 72;
+      Open.Width := 80;
       Open.Margins.Top := 8;
       Open.Margins.Bottom := 8;
       Open.Margins.Right := 8;
-      Open.Text := 'Open';
+      Open.Text := 'Details';
       Open.TextSettings.Trimming := TTextTrimming.None;
       Open.TagString := R.WaveId;
       Open.OnClick := OpenButtonClick;

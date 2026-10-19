@@ -1,0 +1,6 @@
+/* Adds the Custom and Web customer types. Safe to run more than once. */
+
+UPDATE OR INSERT INTO CUSTOMER_TYPE (NAME, SORT_ORDER) VALUES ('Custom', 4) MATCHING (NAME);
+UPDATE OR INSERT INTO CUSTOMER_TYPE (NAME, SORT_ORDER) VALUES ('Web', 5) MATCHING (NAME);
+
+COMMIT;

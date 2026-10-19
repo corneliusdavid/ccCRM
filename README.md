@@ -31,7 +31,7 @@ Non-goals (for now): prospect tracking (all customers come from the ABS software
 | Server | Existing RAD Server on an ABS Cloud server. Not the RDWeb pages. |
 | Client | FMX mobile app first (tap-to-call, tap-to-email, search). A web page can reuse the same endpoints later. |
 | Wave credentials | Full Access token, stored server-side in RAD Server config only. Never in the app, never in RDWeb. |
-| Type / Status | Two lookup tables (editable): Type = ABS, ABS Cloud, Retail Pro; Status = Active, Inactive. |
+| Type / Status | Two lookup tables (editable): Type = ABS, ABS Cloud, Retail Pro, Custom, Web; Status = Active, Inactive. |
 | Main contact | Lives in `CUSTOMER` (from Wave). Additional people live in `CONTACT`. |
 | AD link | One AD group per customer, stored as `CUSTOMER.AD_GROUP` (unique). No mapping table. |
 | User count | `CUSTOMER.USER_COUNT`, entered manually for now; later computed from AD group membership. |
@@ -70,7 +70,7 @@ Non-goals (for now): prospect tracking (all customers come from the ABS software
 
 | Table | Purpose |
 |---|---|
-| `CUSTOMER_TYPE` | Lookup: ABS, ABS Cloud, Retail Pro (editable). |
+| `CUSTOMER_TYPE` | Lookup: ABS, ABS Cloud, Retail Pro, Custom, Web (editable in the database; new types go in `migrations/`). |
 | `CUSTOMER_STATUS` | Lookup: Active, Inactive (editable). |
 | `CUSTOMER` | One row per Wave customer; key is the Wave ID (`VARCHAR(100) CHARACTER SET ASCII`, an opaque base64 string, don't parse it). |
 | `CONTACT` | Additional people at a customer: name, email, phone, job title. |

@@ -74,6 +74,9 @@ function Crm: TCrmApi;
 
 implementation
 
+uses
+  System.Generics.Collections;
+
 var
   GCrm: TCrmApi;
 
