@@ -2,10 +2,6 @@
 
 A small, personal CRM for ABS Cloud and other customers, built in Delphi on RAD Server and Firebird 5, with a mobile (FMX) client. **Wave (waveapps.com) is the master for billing/contact data**; this project adds the things Wave doesn't have: customer type and status, notes, extra contacts, an event log, user counts and an Active Directory link.
 
-> **Status (2026-10-11): the Firebird 5 schema is created** (5 tables, 1 view, 1 procedure, 2 triggers, 4 identity sequences, lookup rows seeded; run in DBeaver). Not yet done: end-to-end test of the log triggers, the Wave sync, RAD Server, the app. `wave-customers.graphql` has not been run. This README is the summary of the design conversation so the work can resume cold.
-
-This project was split out of the ABS RDWeb repo (`E:\Delphi\ABS\RDWeb\ABS RDWeb`) on purpose: that repo is deployed by copying files to IIS, and this one has a different deployment (RAD Server + database + mobile app).
-
 ---
 
 ## Goals
@@ -16,8 +12,6 @@ This project was split out of the ABS RDWeb repo (`E:\Delphi\ABS\RDWeb\ABS RDWeb
 4. Replace the current CRM (bluecamroo.com, which isn't liked). Nothing needs to be imported from it; any notes will be re-entered manually. Trello data will also be merged in manually.
 5. Avoid two separate sets of customer records: Wave stays the master, this app caches and extends it.
 
-Non-goals (for now): prospect tracking (all customers come from the ABS software vendor and are billable on arrival), document storage, follow-up reminders, sending the actual email blast.
-
 ---
 
 ## Key decisions
@@ -27,11 +21,11 @@ Non-goals (for now): prospect tracking (all customers come from the ABS software
 | Master data | Wave. A customer must exist in Wave before it exists here. |
 | Writes to Wave | **None.** The app never deletes or modifies Wave data. It is read-only toward Wave. |
 | Customers disappearing from Wave | Sync sets `IN_WAVE = 0`; the row, notes and log are kept. Sync never deletes; you can delete an obsolete record yourself (app: Details, **Delete**), which removes its contacts and log too. |
-| Database | **Firebird 5** (switched from InterBase). An existing Firebird database will be imported later (check its version; older files need a `gbak` backup/restore). Open check: that your FireDAC version accepts the Firebird 5 client library. |
-| Server | Existing RAD Server on an ABS Cloud server. Not the RDWeb pages. |
+| Database | **Firebird 5**  |
+| Server | Existing RAD Server on an ABS Cloud server. |
 | Client | FMX mobile app first (tap-to-call, tap-to-email, search). A web page can reuse the same endpoints later. |
-| Wave credentials | Full Access token, stored server-side in RAD Server config only. Never in the app, never in RDWeb. |
-| Type / Status | Two lookup tables (editable): Type = ABS, ABS Cloud, Retail Pro, Custom, Web; Status = Active, Inactive. |
+| Wave credentials | Full Access token, stored server-side in RAD Server config only. Never in the app. |
+| Type / Status | Two lookup tables: Type = ABS, ABS Cloud, Retail Pro, Custom, Web; Status = Active, Inactive. |
 | Main contact | Lives in `CUSTOMER` (from Wave). Additional people live in `CONTACT`. |
 | AD link | One AD group per customer, stored as `CUSTOMER.AD_GROUP` (unique). No mapping table. |
 | User count | `CUSTOMER.USER_COUNT`, entered manually for now; later computed from AD group membership. |
@@ -102,8 +96,6 @@ Type is a parameter, so any group can be blasted. Add `CONTACT.EMAIL` rows with 
 
 ## Wave API notes
 
-**Caveat: Wave's developer site returned 403 to the tool used in the design session, so these come from search snippets and third-party write-ups. Verify in your Wave developer portal.**
-
 - GraphQL only: `https://gql.waveapps.com/graphql/public` (verified with an unauthenticated probe; the plain `/graphql` path returns 404 "Cannot POST /graphql"; ignore any REST v1 write-ups).
 - Auth: **Full Access token** for personal/internal use (the sources say this doesn't require Wave Pro); OAuth 2 is for published apps and requires the connected business to have Wave Pro/Advisor (as of May 2025). Skim Wave's *Permitted Use* page to confirm an internal tool like this is covered.
 - Rate limits (secondary source): 60 requests/minute per token, 5,000/day per application. Irrelevant at 82 customers.
@@ -128,18 +120,6 @@ Type is a parameter, so any group can be blasted. Add `CONTACT.EMAIL` rows with 
 - Customer contact data is PII: HTTPS only, authenticated RAD Server resources, and a PIN/biometric lock in the mobile app.
 - Cache as little as practical on the device.
 - The Wave token never leaves the server. Don't commit it; keep it in RAD Server config or an untracked file.
-
----
-
-## Roadmap
-
-1. ~~Create the schema~~ and ~~run the log-trigger smoke test~~ (both done). Next: create `ccCRM.ini` and run the first sync (see below).
-2. **Wave sync** as a Delphi unit with a console test project (verify against the 82 records), then wire it into RAD Server.
-3. **RAD Server resources**: customers (list/search/get/update own columns), contacts, log (list/add manual), email list, sync trigger.
-4. **FMX client**: search, customer detail, tap-to-call/email, notes/log entry, email-list copy.
-5. **AD import**: PowerShell `Get-ADGroupMember` per `AD_GROUP` to fill `USER_COUNT`; flag groups without a customer and customers without a group.
-6. **Importer for the existing Firebird database** (future).
-7. Later, if wanted: documents table, logo handling, actually sending mail.
 
 ---
 
@@ -199,7 +179,7 @@ Notes:
 
 ## RAD Server package (`src/server/ccCRMServer.dpk`)
 
-Compiles (Win32 and Win64, Delphi 12) but has **not been run against RAD Server or a database yet**. Contains `ccCRM.Types/Config/WaveClient/Data` from `src/shared` plus `ccCRM.Server.Json` (dataset to JSON) and `ccCRM.Server.Resources` (the endpoints). Settings come from `ccCRM.ini` beside the built `.bpl`; the server forces pooled connections (named FireDAC definition `ccCRMPool`, 25 connections max). One resource instance (and one `TdmccCRM`) is created per request.
+Built with **Delphi 12** as a 64-bit package. Contains `ccCRM.Types/Config/WaveClient/Data` from `src/shared` plus `ccCRM.Server.Json` (dataset to JSON) and `ccCRM.Server.Resources` (the endpoints). Settings come from `ccCRM.ini` beside the built `.bpl`; the server forces pooled connections (named FireDAC definition `ccCRMPool`, 25 connections max). One resource instance (and one `TdmccCRM`) is created per request.
 
 | Resource | Methods | Notes |
 |---|---|---|
@@ -222,7 +202,7 @@ Things to know before deploying:
 
 ## Mobile app (`src/mobile/ccCRMApp.dpr`)
 
-FMX app (Delphi 12) built on **TFrameStand** (`E:\Delphi\lib\TFrameStand`, add its `source` folder to the library path for each platform). The main form holds a `TFrameStand`; the customer list is the permanent base page, and every other screen is a frame stood on top of it and closed with Back (toolbar button or the Android back key). The app only talks to the RAD Server package; it never touches Wave or the database directly.
+Built with **Delphi 13** using the Firemonkey framework for cross-platform support and built on **TFrameStand** (`E:\Delphi\lib\TFrameStand`, add its `source` folder to the library path for each platform). The main form holds a `TFrameStand`; the customer list is the permanent base page, and every other screen is a frame stood on top of it and closed with Back (toolbar button or the Android back key). The app only talks to the RAD Server package; it never touches Wave or the database directly.
 
 | Frame | Does |
 |---|---|
