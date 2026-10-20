@@ -3,7 +3,8 @@ unit ccCRM.App.Frame.Detail;
 { One customer: contact details, classification, notes, extra contacts and the dated log,
   all in a single scrolling list. Calling, emailing and opening the website go through small
   icon buttons at the right of a row; tapping the row itself does nothing, so a stray tap
-  never starts a call. The button on the main contact row opens the additional contacts.
+  never starts a call. The button on the main contact row opens the additional contacts, and
+  the pencil on a manual log entry opens it for editing (automatic entries can't be changed).
 
   For a customer that is no longer in Wave the "+ Log" button becomes "Delete", which removes
   this app's copy of the obsolete record. }
@@ -37,11 +38,13 @@ type
     FOnAddLog: TProc<string>;
     FOnDeleted: TProc;
     FOnContacts: TProc<string>;
+    FOnEditLog: TProc<TLogEntry>;
     procedure AddHeader(const AText: string);
     function AddRow(const AText, ADetail: string; AWrap: Boolean = False): TListBoxItem;
     procedure AddLink(AItem: TListBoxItem; AIcon: TAppIcon; const AUrl: string);
     procedure LinkButtonClick(Sender: TObject);
     procedure ContactsButtonClick(Sender: TObject);
+    procedure LogEditButtonClick(Sender: TObject);
     procedure RowApplyStyleLookup(Sender: TObject);
     procedure SizeWrappedRow(AItem: TListBoxItem);
     procedure Fill;
@@ -58,6 +61,8 @@ type
     property OnDeleted: TProc read FOnDeleted write FOnDeleted;
     { Edit the additional contacts of the customer with this Wave id. }
     property OnContacts: TProc<string> read FOnContacts write FOnContacts;
+    { Edit or delete this manual log entry. }
+    property OnEditLog: TProc<TLogEntry> read FOnEditLog write FOnEditLog;
   end;
 
 implementation
@@ -159,6 +164,13 @@ begin
     FOnContacts(FWaveId);
 end;
 
+procedure TDetailFrame.LogEditButtonClick(Sender: TObject);
+begin
+  var Index := (Sender as TSpeedButton).Tag;  // index into FDetail.Log
+  if (Index <= High(FDetail.Log)) and Assigned(FOnEditLog) then
+    FOnEditLog(FDetail.Log[Index]);
+end;
+
 { Adjusts the row's copy of its style, so other rows are unaffected. Runs whenever the row
   (re)applies its style.
   - Wrapped rows: the style's "text" object has WordWrap off and Character trimming of its own,
@@ -196,7 +208,7 @@ begin
     try
       Layout.Font := AItem.ResultingTextSettings.Font;
       Layout.WordWrap := True;
-      Layout.MaxSize := TPointF.Create(Max(List.Width - SidePadding, 100), 100000);
+      Layout.MaxSize := TPointF.Create(Max(List.Width - SidePadding - ButtonsWidth(AItem), 100), 100000);
       Layout.Text := AItem.Text;
     finally
       Layout.EndUpdate;
@@ -296,8 +308,16 @@ begin
     end;
 
     AddHeader('Log');
-    for var L in FDetail.Log do
-      AddRow(L.Summary, L.EventDate + IfThen(L.Manual, '', ' - automatic'), True);
+    for var I := 0 to High(FDetail.Log) do
+    begin
+      var L := FDetail.Log[I];
+      var Row := AddRow(L.Summary, L.EventDate + IfThen(L.Manual, '', ' - automatic'), True);
+      if L.Manual then
+      begin
+        AddRowButton(Row, TAppIcon.Edit, 'Edit', LogEditButtonClick).Tag := I;
+        SizeWrappedRow(Row);  // again, now that the button takes some of the width
+      end;
+    end;
   finally
     List.EndUpdate;
   end;

@@ -13,6 +13,9 @@ uses
 function AddRowButton(AItem: TListBoxItem; AIcon: TAppIcon; const AHint: string;
   AOnClick: TNotifyEvent): TSpeedButton;
 
+{ Total width of the row's buttons. }
+function ButtonsWidth(AItem: TListBoxItem): Single;
+
 { Keeps the row's text clear of its buttons, so a long email address isn't drawn under them.
   Call it from the row's OnApplyStyleLookup if the row has a handler of its own; otherwise
   AddRowButton installs one that does just this. }
@@ -54,12 +57,17 @@ begin
   FitTextToButtons(AItem);  // in case the style is already applied
 end;
 
-procedure FitTextToButtons(AItem: TListBoxItem);
+function ButtonsWidth(AItem: TListBoxItem): Single;
 begin
-  var Room: Single := 0;
+  Result := 0;
   for var I := 0 to AItem.ChildrenCount - 1 do
     if AItem.Children[I] is TSpeedButton then
-      Room := Room + TSpeedButton(AItem.Children[I]).Width;
+      Result := Result + TSpeedButton(AItem.Children[I]).Width;
+end;
+
+procedure FitTextToButtons(AItem: TListBoxItem);
+begin
+  var Room := ButtonsWidth(AItem);
   for var Name in ['text', 'detail'] do
   begin
     var Part := AItem.FindStyleResource(Name);

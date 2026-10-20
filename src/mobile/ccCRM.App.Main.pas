@@ -36,7 +36,7 @@ type
     function Open<T: TFrame>(const AConfig: TProc<T>): T;
     procedure OpenDetail(const AWaveId: string);
     procedure OpenEdit(ADetailFrame: TDetailFrame; const ADetail: TCustomerDetail);
-    procedure OpenLog(ADetailFrame: TDetailFrame; const AWaveId: string);
+    procedure OpenLog(ADetailFrame: TDetailFrame; const AWaveId: string; const AEntry: TLogEntry);
     procedure OpenContacts(ADetailFrame: TDetailFrame; const AWaveId: string);
     procedure OpenContactEdit(AContactsFrame: TContactsFrame; const AWaveId: string;
       const AContact: TContactRec);
@@ -150,7 +150,12 @@ begin
       F.OnAddLog :=
         procedure(AId: string)
         begin
-          OpenLog(F, AId);
+          OpenLog(F, AId, Default(TLogEntry));
+        end;
+      F.OnEditLog :=
+        procedure(AEntry: TLogEntry)
+        begin
+          OpenLog(F, AWaveId, AEntry);
         end;
       F.OnDeleted :=
         procedure
@@ -187,12 +192,13 @@ begin
     end);
 end;
 
-procedure TMainForm.OpenLog(ADetailFrame: TDetailFrame; const AWaveId: string);
+procedure TMainForm.OpenLog(ADetailFrame: TDetailFrame; const AWaveId: string;
+  const AEntry: TLogEntry);
 begin
   Open<TLogFrame>(
     procedure(F: TLogFrame)
     begin
-      F.Start(AWaveId);
+      F.Start(AWaveId, AEntry);
       F.OnCancel :=
         procedure
         begin
@@ -263,6 +269,11 @@ begin
         begin
           ClosePage(F);
           FCustomers.Reload;
+        end;
+      F.OnSynced :=
+        procedure
+        begin
+          FCustomers.Reload;  // the list is underneath; it's current when Settings closes
         end;
     end);
 end;

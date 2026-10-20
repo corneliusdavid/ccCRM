@@ -34,12 +34,15 @@ type
     FAlive: IAlive;
     FOnBack: TProc;
     FOnSaved: TProc;
+    FOnSynced: TProc;
     procedure Store;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property OnBack: TProc read FOnBack write FOnBack;
     property OnSaved: TProc read FOnSaved write FOnSaved;
+    { A sync with Wave finished; customers may have been added, changed or marked missing. }
+    property OnSynced: TProc read FOnSynced write FOnSynced;
   end;
 
 implementation
@@ -120,6 +123,8 @@ begin
     begin
       SyncButton.Enabled := True;
       ResultLabel.Text := 'Sync done: ' + ASummary;
+      if Assigned(FOnSynced) then
+        FOnSynced();
     end,
     procedure(AError: string)
     begin

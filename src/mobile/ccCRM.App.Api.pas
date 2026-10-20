@@ -75,6 +75,9 @@ type
     { Removes a customer that is no longer in Wave (the server refuses others). }
     procedure DeleteCustomer(const AWaveId: string);
     procedure AddLog(const AWaveId: string; AEventDate: TDate; const ASummary: string);
+    { Manual log entries only; the server refuses automatic ones. }
+    procedure UpdateLog(ALogId: Integer; AEventDate: TDate; const ASummary: string);
+    procedure DeleteLog(ALogId: Integer);
     { Additional contacts (the main contact comes from Wave and isn't edited here). }
     procedure AddContact(const AWaveId: string; const AContact: TContactRec);
     procedure UpdateContact(const AContact: TContactRec);
@@ -376,6 +379,23 @@ begin
   finally
     Body.Free;
   end;
+end;
+
+procedure TCrmApi.UpdateLog(ALogId: Integer; AEventDate: TDate; const ASummary: string);
+begin
+  var Body := TJSONObject.Create;
+  try
+    Body.AddPair('event_date', FormatDateTime('yyyy-mm-dd', AEventDate));
+    Body.AddPair('summary', ASummary);
+    Request('PUT', '/customerlog/' + ALogId.ToString, Body).Free;
+  finally
+    Body.Free;
+  end;
+end;
+
+procedure TCrmApi.DeleteLog(ALogId: Integer);
+begin
+  Request('DELETE', '/customerlog/' + ALogId.ToString).Free;
 end;
 
 { Empty fields are sent as JSON null, so the database stores NULL rather than ''. }

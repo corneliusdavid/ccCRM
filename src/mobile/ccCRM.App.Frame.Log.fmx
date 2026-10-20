@@ -24,6 +24,16 @@ object LogFrame: TLogFrame
       Text = 'Save'
       OnClick = SaveButtonClick
     end
+    object DeleteButton: TSpeedButton
+      Align = Right
+      Position.X = 216.000000000000000000
+      Size.Width = 72.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Delete'
+      Visible = False
+      OnClick = DeleteButtonClick
+    end
     object TitleLabel: TLabel
       Align = Client
       StyledSettings = [Family, Size, FontColor]
