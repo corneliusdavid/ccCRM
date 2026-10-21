@@ -187,7 +187,7 @@ Built with **Delphi 12** as a 64-bit package. Contains `ccCRM.Types/Config/WaveC
 | `contacts` | `POST`; `PUT /{id}`; `DELETE /{id}` | POST body needs `wave_id`; PUT replaces `name`, `email`, `phone`, `job_title`. Returns `{"rows": n}`; 404 if nothing matched. |
 | `customerlog` | `POST`; `PUT /{id}`; `DELETE /{id}` | **Manual entries only** (automatic ones are protected by the SQL; they answer 404). POST needs `wave_id` and `summary`; `event_date` (`yyyy-mm-dd`) defaults to today, so back-dating is just a different date. |
 | `lookups` | `GET` | `{types:[...], statuses:[...]}` for pickers and the email filter. |
-| `emails` | `GET ?type=ABS Cloud&status=Active` | Names from `lookups`, both optional. Returns `{count, bcc, emails}`; `bcc` is `a@x; b@y` ready to paste. |
+| `emails` | `GET ?q=&type_id=&status_id=` | Same filter as `GET customers` (all optional; `0` = not set). Main contact + additional contacts of those customers. Returns `{count, bcc, emails}`; `bcc` is `a@x; b@y` ready to paste. |
 | `sync` | `POST` | Fetches from Wave and syncs now; returns `{fetched, added, updated, marked_missing}`. |
 
 JSON keys are the lower-case column names (`wave_id`, `user_count`, `type_name`, ...). Dates are ISO 8601.
@@ -212,7 +212,7 @@ Built with **Delphi 13** using the Firemonkey framework for cross-platform suppo
 | `ContactEdit` | Name, job title, email and phone of one additional contact (name required). |
 | `Edit` | Your own columns only: type, status, AD group, user count, notes. Name, email, phone and address stay in Wave. |
 | `Log` | Adds a manual log entry (the date defaults to today and can be set earlier to record history), or, from the pencil on a manual entry in `Detail`, changes its date and wording or deletes it. Automatic entries can't be changed. |
-| `Emails` | Email list for a type/status (defaults to Active ABS Cloud). Copy the BCC list or hand it to the email app. |
+| `Emails` | Email list for the customers the home list is showing (its search and type/status filters). Copy the BCC list or hand it to the email app. |
 | `Settings` | Server base URL, RAD Server application id and secret (stored in the app's private `ccCRM.ini`), Test connection, and "Sync customers from Wave now". |
 
 Code layout: `ccCRM.App.Types` (records + JSON readers), `ccCRM.App.Api` (blocking REST client, settings, and `TAsync.Run<T>` that runs a call on a pool thread and answers on the UI thread unless the frame has been closed), `ccCRM.App.Platform` (open `tel:`/`mailto:`, clipboard), `ccCRM.App.Icons` (vector toolbar and row icons), `ccCRM.App.Rows` (icon buttons at the right of list rows), one `ccCRM.App.Frame.*` unit per frame, `ccCRM.App.Main`.

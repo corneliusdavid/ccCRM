@@ -244,21 +244,40 @@ object dmccCRM: TdmccCRM
   object qEmails: TFDQuery
     Connection = Conn
     SQL.Strings = (
-      'SELECT DISTINCT EMAIL FROM V_EMAIL_LIST'
-      'WHERE (CAST(:TYPE_NAME AS VARCHAR(40)) IS NULL OR TYPE_NAME = :TYPE_NAME)'
-      '  AND (CAST(:STATUS_NAME AS VARCHAR(40)) IS NULL OR STATUS_NAME = :STATUS_NAME)'
-      'ORDER BY EMAIL')
+      'WITH F AS ('
+      '  SELECT C.WAVE_ID, C.EMAIL FROM CUSTOMER C'
+      '  WHERE (CAST(:Q AS VARCHAR(100)) IS NULL'
+      '      OR C.NAME CONTAINING :Q OR C.FIRST_NAME CONTAINING :Q'
+      '      OR C.LAST_NAME CONTAINING :Q OR C.EMAIL CONTAINING :Q'
+      '      OR C.PHONE CONTAINING :Q OR C.MOBILE CONTAINING :Q'
+      '      OR C.AD_GROUP CONTAINING :Q OR C.CITY CONTAINING :Q'
+      '      OR EXISTS (SELECT 1 FROM CONTACT K WHERE K.WAVE_ID = C.WAVE_ID'
+      '          AND (K.NAME CONTAINING :Q OR K.EMAIL CONTAINING :Q OR K.PHONE CONTAINING :Q)))'
+      '    AND (CAST(:TYPE_ID AS INTEGER) IS NULL OR C.TYPE_ID = :TYPE_ID'
+      '      OR (:TYPE_ID = 0 AND C.TYPE_ID IS NULL))'
+      '    AND (CAST(:STATUS_ID AS INTEGER) IS NULL OR C.STATUS_ID = :STATUS_ID'
+      '      OR (:STATUS_ID = 0 AND C.STATUS_ID IS NULL)))'
+      'SELECT EMAIL FROM F WHERE EMAIL <> '#39#39
+      'UNION'
+      'SELECT K.EMAIL FROM CONTACT K JOIN F ON F.WAVE_ID = K.WAVE_ID'
+      'WHERE K.EMAIL <> '#39#39
+      'ORDER BY 1')
     Left = 540
     Top = 24
     ParamData = <
       item
-        Name = 'TYPE_NAME'
+        Name = 'Q'
         DataType = ftWideString
         ParamType = ptInput
       end
       item
-        Name = 'STATUS_NAME'
-        DataType = ftWideString
+        Name = 'TYPE_ID'
+        DataType = ftInteger
+        ParamType = ptInput
+      end
+      item
+        Name = 'STATUS_ID'
+        DataType = ftInteger
         ParamType = ptInput
       end>
   end

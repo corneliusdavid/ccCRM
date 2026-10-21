@@ -11,7 +11,8 @@ unit ccCRM.Server.Resources;
     contacts       POST | PUT /item | DELETE /item
     customerlog    POST | PUT /item | DELETE /item       (manual entries only)
     lookups        GET                                   (types + statuses)
-    emails         GET (type, status names)              (email list + BCC string)
+    emails         GET (q, type_id, status_id)           (email list + BCC string)
+                                                         (same filter as GET customers)
     sync           POST                                  (pull from Wave now)
 
   "item" is the Wave id for customers and the numeric id for contacts / customerlog. }
@@ -407,13 +408,15 @@ end;
 
 { TEmailsResource }
 
-{ ?type=ABS Cloud&status=Active (names from /lookups; both optional). }
+{ Main contact + additional contacts of the customers GET customers would return for the
+  same q / type_id / status_id, one row per distinct address. }
 procedure TEmailsResource.Get(const AContext: TEndpointContext;
   const ARequest: TEndpointRequest; const AResponse: TEndpointResponse);
 begin
   var Q := Data.qEmails;
-  SetFilter(Q.ParamByName('TYPE_NAME'), QueryValue(ARequest, 'type'));
-  SetFilter(Q.ParamByName('STATUS_NAME'), QueryValue(ARequest, 'status'));
+  SetFilter(Q.ParamByName('Q'), Trim(QueryValue(ARequest, 'q')));
+  SetFilter(Q.ParamByName('TYPE_ID'), QueryValue(ARequest, 'type_id'));
+  SetFilter(Q.ParamByName('STATUS_ID'), QueryValue(ARequest, 'status_id'));
 
   var Emails := TJSONArray.Create;
   var Bcc := '';

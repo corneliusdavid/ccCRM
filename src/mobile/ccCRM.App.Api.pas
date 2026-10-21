@@ -20,6 +20,14 @@ const
   UnclassifiedId = 0;   // list filter: type / status not set
 
 type
+  { The customer list's search box and type/status filters. }
+  TCustomerFilter = record
+    Query: string;
+    TypeId: Integer;       // AllIds, UnclassifiedId or a type id
+    StatusId: Integer;     // AllIds, UnclassifiedId or a status id
+    Caption: string;       // e.g. "ABS Cloud, Active"
+    function QueryString: string;
+  end;
 
   TAppSettings = record
     BaseUrl: string;       // e.g. https://server/radserver
@@ -82,7 +90,8 @@ type
     procedure AddContact(const AWaveId: string; const AContact: TContactRec);
     procedure UpdateContact(const AContact: TContactRec);
     procedure DeleteContact(AContactId: Integer);
-    function Emails(const ATypeName, AStatusName: string): TEmailList;
+    { Addresses of the customers the list shows for the same filter. }
+    function Emails(const AFilter: TCustomerFilter): TEmailList;
     function SyncNow: string;
   end;
 
@@ -101,6 +110,22 @@ var
 function Crm: TCrmApi;
 begin
   Result := GCrm;
+end;
+
+{ TCustomerFilter }
+
+{ "?q=..&type_id=..&status_id=.." with only the parts that are set; '' if none. }
+function TCustomerFilter.QueryString: string;
+begin
+  Result := '';
+  if Trim(Query) <> '' then
+    Result := Result + '&q=' + TNetEncoding.URL.EncodeQuery(Trim(Query));
+  if TypeId <> AllIds then
+    Result := Result + '&type_id=' + TypeId.ToString;
+  if StatusId <> AllIds then
+    Result := Result + '&status_id=' + StatusId.ToString;
+  if Result <> '' then
+    Result := '?' + Result.Substring(1);
 end;
 
 { TAppSettings }
@@ -298,17 +323,12 @@ end;
 
 function TCrmApi.Customers(const AQuery: string; ATypeId, AStatusId: Integer): TArray<TCustomerRow>;
 begin
-  var Qs := '';
-  if Trim(AQuery) <> '' then
-    Qs := Qs + '&q=' + TNetEncoding.URL.EncodeQuery(Trim(AQuery));
-  if ATypeId <> AllIds then
-    Qs := Qs + '&type_id=' + ATypeId.ToString;
-  if AStatusId <> AllIds then
-    Qs := Qs + '&status_id=' + AStatusId.ToString;
-  if Qs <> '' then
-    Qs := '?' + Qs.Substring(1);
+  var Filter: TCustomerFilter;
+  Filter.Query := AQuery;
+  Filter.TypeId := ATypeId;
+  Filter.StatusId := AStatusId;
 
-  var Json := Request('GET', '/customers' + Qs);
+  var Json := Request('GET', '/customers' + Filter.QueryString);
   try
     var Arr := Json as TJSONArray;
     SetLength(Result, Arr.Count);
@@ -443,17 +463,9 @@ begin
   Request('DELETE', '/contacts/' + AContactId.ToString).Free;
 end;
 
-function TCrmApi.Emails(const ATypeName, AStatusName: string): TEmailList;
+function TCrmApi.Emails(const AFilter: TCustomerFilter): TEmailList;
 begin
-  var Qs := '';
-  if ATypeName <> '' then
-    Qs := Qs + '&type=' + TNetEncoding.URL.EncodeQuery(ATypeName);
-  if AStatusName <> '' then
-    Qs := Qs + '&status=' + TNetEncoding.URL.EncodeQuery(AStatusName);
-  if Qs <> '' then
-    Qs := '?' + Qs.Substring(1);
-
-  var Json := Request('GET', '/emails' + Qs);
+  var Json := Request('GET', '/emails' + AFilter.QueryString);
   try
     Result.Count := JInt(Json as TJSONObject, 'count');
     Result.Bcc := JStr(Json as TJSONObject, 'bcc');

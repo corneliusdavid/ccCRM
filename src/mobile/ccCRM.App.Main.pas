@@ -288,6 +288,7 @@ begin
         begin
           ClosePage(F);
         end;
+      F.Load(FCustomers.Filter);  // only the customers the list is showing
     end);
 end;
 

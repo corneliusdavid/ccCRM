@@ -1,7 +1,7 @@
 unit ccCRM.App.Frame.Emails;
 
-{ Builds the email list for a type/status (default: Active ABS Cloud) and either copies the
-  BCC string or hands it to the phone's email app. }
+{ Builds the email list for the customers the home list is showing (its search and
+  type/status filters) and either copies the BCC string or hands it to the phone's email app. }
 
 interface
 
@@ -17,27 +17,23 @@ type
     BackButton: TSpeedButton;
     TitleLabel: TLabel;
     Form: TLayout;
-    TypeCombo: TComboBox;
-    StatusCombo: TComboBox;
+    FilterLabel: TLabel;
     CountLabel: TLabel;
     ButtonLayout: TLayout;
     CopyButton: TButton;
     MailButton: TButton;
     BccMemo: TMemo;
     procedure BackButtonClick(Sender: TObject);
-    procedure FilterChange(Sender: TObject);
     procedure CopyButtonClick(Sender: TObject);
     procedure MailButtonClick(Sender: TObject);
   private
     FAlive: IAlive;
-    FBusy: Boolean;
     FOnBack: TProc;
-    procedure LoadLookups;
-    procedure Reload;
-    function ComboName(ACombo: TComboBox): string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    { Fetches the addresses for AFilter (the customer list's current filter). }
+    procedure Load(const AFilter: TCustomerFilter);
     property OnBack: TProc read FOnBack write FOnBack;
   end;
 
@@ -50,11 +46,6 @@ begin
   inherited;
   FAlive := TAlive.Create;
   SetIcon(BackButton, TAppIcon.Back);
-  TypeCombo.Items.Add('Any type');
-  StatusCombo.Items.Add('Any status');
-  TypeCombo.ItemIndex := 0;
-  StatusCombo.ItemIndex := 0;
-  LoadLookups;
 end;
 
 destructor TEmailsFrame.Destroy;
@@ -63,56 +54,14 @@ begin
   inherited;
 end;
 
-{ Empty string for "Any ..." (item 0), otherwise the selected name. }
-function TEmailsFrame.ComboName(ACombo: TComboBox): string;
+procedure TEmailsFrame.Load(const AFilter: TCustomerFilter);
 begin
-  Result := '';
-  if ACombo.ItemIndex > 0 then
-    Result := ACombo.Items[ACombo.ItemIndex];
-end;
-
-procedure TEmailsFrame.LoadLookups;
-begin
-  TAsync.Run<TLookups>(FAlive,
-    function: TLookups
-    begin
-      Result := Crm.Lookups;
-    end,
-    procedure(ALookups: TLookups)
-    begin
-      FBusy := True;
-      try
-        for var T in ALookups.Types do
-          TypeCombo.Items.Add(T.Name);
-        for var S in ALookups.Statuses do
-          StatusCombo.Items.Add(S.Name);
-        // the common case: current ABS Cloud customers
-        var I := TypeCombo.Items.IndexOf('ABS Cloud');
-        if I >= 0 then
-          TypeCombo.ItemIndex := I;
-        I := StatusCombo.Items.IndexOf('Active');
-        if I >= 0 then
-          StatusCombo.ItemIndex := I;
-      finally
-        FBusy := False;
-      end;
-      Reload;
-    end,
-    procedure(AError: string)
-    begin
-      CountLabel.Text := AError;
-    end);
-end;
-
-procedure TEmailsFrame.Reload;
-begin
+  FilterLabel.Text := AFilter.Caption;
   CountLabel.Text := 'Loading...';
-  var TypeName := ComboName(TypeCombo);
-  var StatusName := ComboName(StatusCombo);
   TAsync.Run<TEmailList>(FAlive,
     function: TEmailList
     begin
-      Result := Crm.Emails(TypeName, StatusName);
+      Result := Crm.Emails(AFilter);
     end,
     procedure(AList: TEmailList)
     begin
@@ -124,12 +73,6 @@ begin
       CountLabel.Text := AError;
       BccMemo.Text := '';
     end);
-end;
-
-procedure TEmailsFrame.FilterChange(Sender: TObject);
-begin
-  if not FBusy then
-    Reload;
 end;
 
 procedure TEmailsFrame.CopyButtonClick(Sender: TObject);

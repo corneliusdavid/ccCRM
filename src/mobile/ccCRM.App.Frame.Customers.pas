@@ -39,6 +39,8 @@ type
     destructor Destroy; override;
     { Re-runs the search with the current filters. }
     procedure Reload;
+    { What the list is showing now; the email list uses the same filter. }
+    function Filter: TCustomerFilter;
     property OnOpen: TProc<string> read FOnOpen write FOnOpen;
   end;
 
@@ -107,6 +109,25 @@ begin
     begin
       CountLabel.Text := AError;
     end);
+end;
+
+function TCustomersFrame.Filter: TCustomerFilter;
+begin
+  Result.Query := Trim(SearchEdit.Text);
+  Result.TypeId := SelectedId(TypeCombo, FTypes);
+  Result.StatusId := SelectedId(StatusCombo, FStatuses);
+
+  Result.Caption := '';
+  if Result.TypeId <> AllIds then
+    Result.Caption := TypeCombo.Items[TypeCombo.ItemIndex];
+  if Result.StatusId <> AllIds then
+    Result.Caption := Result.Caption + IfThen(Result.Caption <> '', ', ', '') +
+      StatusCombo.Items[StatusCombo.ItemIndex];
+  if Result.Query <> '' then
+    Result.Caption := Result.Caption + IfThen(Result.Caption <> '', ', ', '') +
+      'matching "' + Result.Query + '"';
+  if Result.Caption = '' then
+    Result.Caption := 'All customers';
 end;
 
 procedure TCustomersFrame.Reload;
