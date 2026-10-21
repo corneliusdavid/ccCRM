@@ -9,10 +9,10 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Generics.Collections,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, FMX.Layouts, FrameStand, ccCRM.App.Types, ccCRM.App.Api,
+  FMX.Controls.Presentation, FMX.Layouts, FMX.DialogService, System.Math, FrameStand, ccCRM.App.Types, ccCRM.App.Api,
   ccCRM.App.Frame.Customers, ccCRM.App.Frame.Detail, ccCRM.App.Frame.Edit,
   ccCRM.App.Frame.Log, ccCRM.App.Frame.Emails, ccCRM.App.Frame.Settings,
-  ccCRM.App.Frame.Contacts, ccCRM.App.Frame.ContactEdit, SubjectStand, ccCRM.App.Icons;
+  ccCRM.App.Frame.Contacts, ccCRM.App.Frame.ContactEdit, SubjectStand, ccCRM.App.Icons, ccCRM.App.Platform;
 
 type
   TMainForm = class(TForm)
@@ -28,6 +28,8 @@ type
     procedure SettingsButtonClick(Sender: TObject);
     procedure EmailsButtonClick(Sender: TObject);
   private
+    InfoButton: TSpeedButton;
+    RefreshButton: TSpeedButton;
     FCustomers: TCustomersFrame;
     FPages: TList<TFrame>;   // open pages above the customer list; topmost last
     function TopPage: TFrame;
@@ -42,6 +44,10 @@ type
       const AContact: TContactRec);
     procedure OpenSettings;
     procedure OpenEmails;
+    function AddBarButton(AIcon: TAppIcon; const AHint: string;
+      AOnClick: TNotifyEvent): TSpeedButton;
+    procedure InfoButtonClick(Sender: TObject);
+    procedure RefreshButtonClick(Sender: TObject);
   public
     destructor Destroy; override;
   end;
@@ -56,6 +62,9 @@ implementation
 {$R *.LgXhdpiTb.fmx ANDROID}
 {$R *.LgXhdpiPh.fmx ANDROID}
 
+const
+  RepoUrl = 'https://github.com/corneliusdavid/ccCRM';
+
 destructor TMainForm.Destroy;
 begin
   FPages.Free;
@@ -66,6 +75,8 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FPages := TList<TFrame>.Create;
   SetIcon(SettingsButton, TAppIcon.Settings);
+  InfoButton := AddBarButton(TAppIcon.Info, 'About', InfoButtonClick);
+  RefreshButton := AddBarButton(TAppIcon.Refresh, 'Refresh', RefreshButtonClick);
   UpdateBar;
   FCustomers := FrameStand1.NewAndShow<TCustomersFrame>(Host, '',
     procedure(F: TCustomersFrame)
@@ -79,6 +90,19 @@ begin
     end).Frame;
   if not Crm.Settings.IsConfigured then
     OpenSettings;
+end;
+
+{ Icon button on the left of the toolbar (made in code rather than in the .fmx so the
+  per-device views don't need them too). }
+function TMainForm.AddBarButton(AIcon: TAppIcon; const AHint: string;
+  AOnClick: TNotifyEvent): TSpeedButton;
+begin
+  Result := TSpeedButton.Create(Self);
+  Result.Parent := Bar;
+  Result.Align := TAlignLayout.Left;
+  Result.Text := AHint;
+  Result.OnClick := AOnClick;
+  SetIcon(Result, AIcon);
 end;
 
 function TMainForm.TopPage: TFrame;
@@ -101,23 +125,34 @@ begin
   UpdateBar;
 end;
 
-{ Emails and Settings are only offered on the customer list, not on pages stood on top of it.
-  Right-aligned controls are ordered by their current position, which goes stale while hidden,
-  so the gear is pushed back to the far right each time. The title's left margin matches the
-  buttons on the right, so it stays centred in the bar. }
+{ The toolbar buttons (Info and Refresh on the left, Emails and Settings on the right) are only
+  offered on the customer list, not on pages stood on top of it. Aligned controls are ordered
+  by their current position, which goes stale while hidden, so each is pushed back into place
+  every time. The title gets a margin on whichever side has fewer buttons, so it stays centred
+  in the bar. }
 procedure TMainForm.UpdateBar;
 begin
   var Home := FPages.Count = 0;
+  InfoButton.Visible := Home;
+  RefreshButton.Visible := Home;
   EmailsButton.Visible := Home;
   SettingsButton.Visible := Home;
   if Home then
   begin
+    InfoButton.Position.X := 0;
+    RefreshButton.Position.X := InfoButton.Width;
     EmailsButton.Position.X := 0;
     SettingsButton.Position.X := Bar.Width;
-    TitleLabel.Margins.Left := EmailsButton.Width + SettingsButton.Width;
+    var LeftWidth := InfoButton.Width + RefreshButton.Width;
+    var RightWidth := EmailsButton.Width + SettingsButton.Width;
+    TitleLabel.Margins.Left := Max(0, RightWidth - LeftWidth);
+    TitleLabel.Margins.Right := Max(0, LeftWidth - RightWidth);
   end
   else
+  begin
     TitleLabel.Margins.Left := 0;
+    TitleLabel.Margins.Right := 0;
+  end;
 end;
 
 function TMainForm.Open<T>(const AConfig: TProc<T>): T;
@@ -293,6 +328,25 @@ begin
         end;
       F.Load(FCustomers.Filter);  // only the customers the list is showing
     end);
+end;
+
+procedure TMainForm.InfoButtonClick(Sender: TObject);
+begin
+  TDialogService.MessageDialog(
+    'ccCRM is a personal CRM for Cornelius Concepts.' + sLineBreak + sLineBreak +
+    'It''s open source on GitHub, so you''re welcome to clone it for your own purposes:' +
+    sLineBreak + RepoUrl + sLineBreak + sLineBreak + 'Open the GitHub page now?',
+    TMsgDlgType.mtInformation, [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo, 0,
+    procedure(const AResult: TModalResult)
+    begin
+      if AResult = mrYes then
+        OpenUrl(RepoUrl);
+    end);
+end;
+
+procedure TMainForm.RefreshButtonClick(Sender: TObject);
+begin
+  FCustomers.RefreshAll;
 end;
 
 procedure TMainForm.SettingsButtonClick(Sender: TObject);

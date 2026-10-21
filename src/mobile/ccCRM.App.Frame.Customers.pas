@@ -32,13 +32,17 @@ type
     FStatuses: TArray<TLookup>;
     FOnOpen: TProc<string>;
     procedure FillList(const ARows: TArray<TCustomerRow>);
-    procedure LoadLookups;
+    procedure LoadLookups(ARefresh: Boolean = False);
     function SelectedId(ACombo: TComboBox; const AItems: TArray<TLookup>): Integer;
+    procedure SelectId(ACombo: TComboBox; const AItems: TArray<TLookup>; AId: Integer);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     { Re-runs the search with the current filters. }
     procedure Reload;
+    { Fetches the types, statuses and customers from the server again, in case they were
+      changed somewhere else; the current filter is kept. }
+    procedure RefreshAll;
     { What the list is showing now; the email list uses the same filter. }
     function Filter: TCustomerFilter;
     property OnOpen: TProc<string> read FOnOpen write FOnOpen;
@@ -75,17 +79,36 @@ begin
     Result := UnclassifiedId;  // the extra item after the lookups, if the combo has one
 end;
 
-procedure TCustomersFrame.LoadLookups;
+{ Inverse of SelectedId; an id that is no longer in the list falls back to "All". }
+procedure TCustomersFrame.SelectId(ACombo: TComboBox; const AItems: TArray<TLookup>;
+  AId: Integer);
+begin
+  var Index := 0;
+  if AId = UnclassifiedId then
+    Index := Length(AItems) + 1
+  else
+    for var I := 0 to High(AItems) do
+      if AItems[I].Id = AId then
+        Index := I + 1;
+  if Index >= ACombo.Count then
+    Index := 0;
+  ACombo.ItemIndex := Index;
+end;
+
+procedure TCustomersFrame.LoadLookups(ARefresh: Boolean);
 begin
   TAsync.Run<TLookups>(FAlive,
     function: TLookups
     begin
-      Result := Crm.Lookups;
+      Result := Crm.Lookups(ARefresh);
     end,
     procedure(ALookups: TLookups)
     begin
       FLoadingFilters := True;
       try
+        // keep the filter across a refresh (both are "All" the first time)
+        var TypeId := SelectedId(TypeCombo, FTypes);
+        var StatusId := SelectedId(StatusCombo, FStatuses);
         TypeCombo.Items.Clear;
         StatusCombo.Items.Clear;
         TypeCombo.Items.Add('All types');
@@ -97,8 +120,8 @@ begin
         TypeCombo.Items.Add('Unclassified');
         for var S in FStatuses do
           StatusCombo.Items.Add(S.Name);
-        TypeCombo.ItemIndex := 0;
-        StatusCombo.ItemIndex := 0;
+        SelectId(TypeCombo, FTypes, TypeId);
+        SelectId(StatusCombo, FStatuses, StatusId);
       finally
         FLoadingFilters := False;
       end;
@@ -109,6 +132,12 @@ begin
     begin
       CountLabel.Text := AError;
     end);
+end;
+
+procedure TCustomersFrame.RefreshAll;
+begin
+  CountLabel.Text := 'Refreshing...';
+  LoadLookups(True);  // reloads the list once the lookups are back
 end;
 
 function TCustomersFrame.Filter: TCustomerFilter;

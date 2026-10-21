@@ -11,7 +11,8 @@ uses
   FMX.Types, FMX.StdCtrls, FMX.Objects;
 
 type
-  TAppIcon = (Back, Edit, Cancel, Save, Settings, Phone, Email, Web, Add, Delete, Contacts);
+  TAppIcon = (Back, Edit, Cancel, Save, Settings, Phone, Email, Web, Add, Delete, Contacts,
+    Info, Refresh);
 
   { Coloured markers shown in list rows (not themed: the colour is part of the meaning). }
   TBadge = (Star, Frown);
@@ -83,7 +84,15 @@ const
     '-3 3 s 1.34 3 3 3 z M 8 11 c 1.66 0 2.99 -1.34 2.99 -3 S 9.66 5 8 5 C 6.34 5 5 6.34 ' +
     '5 8 s 1.34 3 3 3 z M 8 13 c -2.33 0 -7 1.17 -7 3.5 V 19 h 14 v -2.5 c 0 -2.33 -4.67 ' +
     '-3.5 -7 -3.5 z M 16 13 c -0.29 0 -0.62 0.02 -0.97 0.05 c 1.16 0.84 1.97 1.97 1.97 ' +
-    '3.45 V 19 h 6 v -2.5 c 0 -2.33 -4.67 -3.5 -7 -3.5 z'
+    '3.45 V 19 h 6 v -2.5 c 0 -2.33 -4.67 -3.5 -7 -3.5 z',
+    { Info }
+    'M 0 0 M 24 24 M 12 2 C 6.48 2 2 6.48 2 12 s 4.48 10 10 10 s 10 -4.48 10 -10 S 17.52 2 ' +
+    '12 2 z M 13 17 h -2 v -6 h 2 v 6 z M 13 9 h -2 V 7 h 2 v 2 z',
+    { Refresh }
+    'M 0 0 M 24 24 M 17.65 6.35 C 16.2 4.9 14.21 4 12 4 c -4.42 0 -7.99 3.58 -7.99 8 ' +
+    's 3.57 8 7.99 8 c 3.73 0 6.84 -2.55 7.73 -6 h -2.08 c -0.82 2.33 -3.04 4 -5.65 4 ' +
+    'c -3.31 0 -6 -2.69 -6 -6 s 2.69 -6 6 -6 c 1.66 0 3.14 0.69 4.22 1.78 L 13 11 h 7 V 4 ' +
+    'l -2.35 2.35 z'
   );
 
   BadgeSize = 22;
