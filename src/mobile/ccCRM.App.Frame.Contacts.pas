@@ -98,9 +98,7 @@ end;
 
 procedure TContactsFrame.AddHeader(const AText: string);
 begin
-  var H := TListBoxGroupHeader.Create(List);
-  H.Parent := List;
-  H.Text := AText;
+  AddGroupHeader(List, AText);
 end;
 
 function TContactsFrame.AddRow(const AText, ADetail: string): TListBoxItem;

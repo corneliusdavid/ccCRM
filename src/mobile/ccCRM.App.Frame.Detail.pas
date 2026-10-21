@@ -118,9 +118,7 @@ end;
 
 procedure TDetailFrame.AddHeader(const AText: string);
 begin
-  var H := TListBoxGroupHeader.Create(List);
-  H.Parent := List;
-  H.Text := AText;
+  AddGroupHeader(List, AText);
 end;
 
 function TDetailFrame.AddRow(const AText, ADetail: string; AWrap: Boolean): TListBoxItem;
