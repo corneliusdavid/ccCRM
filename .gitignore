@@ -16,3 +16,10 @@ ccCRM.ini
 *.bpi
 *.lib
 *.map
+*.so
+src/mobile/ccCRMApp/res
+src/mobile/CompiledResources
+*.o
+*.dex
+*.zip
+*.stamp

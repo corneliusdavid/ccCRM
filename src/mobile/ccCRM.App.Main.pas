@@ -52,6 +52,9 @@ var
 implementation
 
 {$R *.fmx}
+{$R *.XLgXhdpiTb.fmx ANDROID}
+{$R *.LgXhdpiTb.fmx ANDROID}
+{$R *.LgXhdpiPh.fmx ANDROID}
 
 destructor TMainForm.Destroy;
 begin

@@ -1,0 +1,22 @@
+inherited MainForm_LgXhdpiTb: TMainForm_LgXhdpiTb
+  ClientHeight = 829
+  ClientWidth = 480
+  DesignerMasterStyle = 3
+  inherited Bar: TToolBar
+    Size.Width = 480.000000000000000000
+    inherited TitleLabel: TLabel
+      Size.Width = 280.000000000000000000
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+    end
+    inherited SettingsButton: TSpeedButton
+      Position.X = 416.000000000000000000
+    end
+    inherited EmailsButton: TSpeedButton
+      Position.X = 352.000000000000000000
+    end
+  end
+  inherited Host: TLayout
+    Size.Width = 480.000000000000000000
+    Size.Height = 781.000000000000000000
+  end
+end
